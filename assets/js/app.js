@@ -728,7 +728,21 @@ const App = {
 
   async openAddItemModal() {
     if (!this.currentOrderId) return;
-    await this.populateFormSelect('modal-item-product', '/products?limit=100', 'i_ProductID', 'c_ProductName');
+    const select = document.getElementById('modal-item-product');
+    if (select) {
+      select.innerHTML = '<option value="">-- กรุณาเลือกสินค้า --</option>';
+      try {
+        const res = await API.get('/products', { limit: 100 });
+        (res.data || []).forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.i_ProductID;
+          opt.textContent = `${item.c_ProductName} (฿${Number(item.i_Price).toLocaleString('th-TH')})`;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error('Failed to load products for modal:', e);
+      }
+    }
     document.getElementById('modal-item-qty').value = 1;
     new bootstrap.Modal(document.getElementById('orderItemModal')).show();
   },
@@ -962,7 +976,7 @@ const App = {
   },
 
   async deleteSupplier(id, name) {
-    if (!confirm(`ต้องการลบผู้จัดจำหน่าย "${name}" (#{$id}) ใช่หรือไม่?`)) return;
+    if (!confirm(`ต้องการลบผู้จัดจำหน่าย "${name}" (#${id}) ใช่หรือไม่?`)) return;
     try {
       await API.delete(`/suppliers/${id}`);
       this.toast('ลบผู้จัดจำหน่ายเรียบร้อยแล้ว', 'success');
@@ -1290,9 +1304,10 @@ const App = {
 
   debounce(func, wait) {
     let timeout;
+    const self = this;
     return function (...args) {
       clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
+      timeout = setTimeout(() => func.apply(self, args), wait);
     };
   },
 

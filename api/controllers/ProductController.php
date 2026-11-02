@@ -19,8 +19,10 @@ class ProductController extends BaseController
         $search     = isset($_GET['search']) ? trim($_GET['search']) : '';
         $categoryId = isset($_GET['category_id']) && is_numeric($_GET['category_id']) ? (int)$_GET['category_id'] : null;
         $supplierId = isset($_GET['supplier_id']) && is_numeric($_GET['supplier_id']) ? (int)$_GET['supplier_id'] : null;
-        $sort       = in_array($_GET['sort'] ?? '', ['i_ProductID', 'c_ProductName', 'i_Price']) ? $_GET['sort'] : 'p.i_ProductID';
-        $direction  = strtoupper($_GET['order'] ?? '') === 'ASC' ? 'ASC' : 'DESC';
+        $allowedSorts = ['i_ProductID' => 'p.i_ProductID', 'c_ProductName' => 'p.c_ProductName', 'i_Price' => 'p.i_Price'];
+        $sortParam   = $_GET['sort'] ?? 'i_ProductID';
+        $sort        = $allowedSorts[$sortParam] ?? 'p.i_ProductID';
+        $direction   = strtoupper($_GET['order'] ?? '') === 'ASC' ? 'ASC' : 'DESC';
 
         $whereConditions = [];
         $params = [];

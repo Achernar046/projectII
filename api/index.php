@@ -129,18 +129,27 @@ $router->get('/reports/sales',  [$reportCtrl, 'salesSummary']);
 $router->get('/reports/export', [$reportCtrl, 'export']);
 
 // ─── Determine Route Path ───────────────────────────────
+// Priority 1: explicit __route param (set by .htaccess RewriteRule)
 $requestPath = $_GET['__route'] ?? $_GET['route'] ?? '';
 
+// Priority 2: extract from REQUEST_URI when __route not available
 if ($requestPath === '') {
-    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
-    if (preg_match('#/api(?:/index\.php)?/(.*)$#i', $uri, $m)) {
-        $requestPath = $m[1];
+    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $uri = $uri ?? '/';
+    // Match /api/, /projectII/api/, /api/index.php/ etc.
+    if (preg_match('#/api(?:/index\.php)?(/.*)?$#i', $uri, $m)) {
+        $requestPath = $m[1] ?? '/';
+    } else {
+        $requestPath = '/';
     }
 }
 
+// Normalize: ensure leading slash, remove trailing slash (except root)
+$requestPath = '/' . trim($requestPath, '/');
+
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Support HTTP Method Spoofing
+// Support HTTP Method Spoofing via _method field or header
 if ($requestMethod === 'POST') {
     $spoofed = $_POST['_method'] ?? $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? $_GET['_method'] ?? null;
     if ($spoofed && in_array(strtoupper($spoofed), ['PUT', 'DELETE', 'PATCH'])) {

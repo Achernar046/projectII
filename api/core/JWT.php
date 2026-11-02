@@ -35,7 +35,10 @@ class JWT
      */
     public static function encode(array $payload): string
     {
-        $config = require __DIR__ . '/../config/jwt.php';
+        static $config = null;
+        if ($config === null) {
+            $config = require __DIR__ . '/../config/jwt.php';
+        }
 
         $header = [
             'typ' => 'JWT',
@@ -69,7 +72,10 @@ class JWT
      */
     public static function decode(string $token): ?array
     {
-        $config = require __DIR__ . '/../config/jwt.php';
+        static $config = null;
+        if ($config === null) {
+            $config = require __DIR__ . '/../config/jwt.php';
+        }
 
         $parts = explode('.', $token);
         if (count($parts) !== 3) {

@@ -55,8 +55,17 @@ class Router
         $methodMatched = false;
 
         foreach ($this->routes as $route) {
-            $pattern = preg_replace('#\{([a-zA-Z0-9_]+)\}#', '(?P<$1>[^/]+)', $route['path']);
-            $regex = '#^' . $pattern . '$#i';
+            // Build regex: escape literal path segments, then insert named captures for {param}
+            $parts = preg_split('#(\{[a-zA-Z0-9_]+\})#', $route['path'], -1, PREG_SPLIT_DELIM_CAPTURE);
+            $pattern = '';
+            foreach ($parts as $part) {
+                if (preg_match('#^\{([a-zA-Z0-9_]+)\}$#', $part, $pm)) {
+                    $pattern .= '(?P<' . $pm[1] . '>[^/]+)';
+                } else {
+                    $pattern .= preg_quote($part, '#');
+                }
+            }
+            $regex = '#^' . $pattern . '$#';
 
             if (preg_match($regex, $cleanUri, $matches)) {
                 if ($route['method'] !== strtoupper($requestMethod)) {
