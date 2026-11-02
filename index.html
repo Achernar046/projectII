@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Northwind BMS — ระบบบริหารจัดการธุรกิจ</title>
+  
+  <!-- Google Fonts: Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SCREEN 1: LOGIN (OUTSIDE SHELL)                    -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div id="screen-login" class="screen-view active">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="brand-icon" style="width:44px;height:44px;font-size:1.25rem">NW</div>
+          <div>
+            <h5 class="mb-0 fw-bold">Northwind BMS</h5>
+            <small class="text-muted">ระบบบริหารจัดการธุรกิจ</small>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <h4 class="fw-bold mb-1">ยินดีต้อนรับ 👋</h4>
+          <p class="text-muted small">กรุณาเข้าสู่ระบบด้วยบัญชีผู้ใช้หรืออีเมล</p>
+        </div>
+
+        <form id="login-form" novalidate>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">ชื่อผู้ใช้ หรือ อีเมล</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+              <input type="text" id="login-username" class="form-control" value="admin" placeholder="admin หรือ admin@northwind.co.th" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">รหัสผ่าน</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+              <input type="password" id="login-password" class="form-control" value="admin123" placeholder="••••••••" required>
+            </div>
+            <div class="form-text small mt-1">รหัสผ่านเริ่มต้นสำหรับทดสอบ: <code>admin123</code></div>
+          </div>
+
+          <button type="submit" id="login-submit-btn" class="btn btn-primary w-100 py-2 fw-semibold">
+            <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+          </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center">
+          <span class="badge badge-soft-primary small">
+            <i class="bi bi-shield-check me-1"></i> ป้องกันด้วย Pure PHP JWT &amp; Prepared Statements
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- MAIN APPLICATION SHELL (SCREENS 2 - 12)           -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div id="app-shell-container" class="app-shell" style="display: none;">
+    
+    <!-- Sidebar -->
+    <aside id="app-sidebar" class="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">NW</div>
+        <div>
+          <div class="fw-bold text-dark" style="line-height:1.2">Northwind BMS</div>
+          <small class="text-muted" style="font-size:0.75rem">Business Suite</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">หน้าหลัก</div>
+        <a href="#dashboard" class="sidebar-link active"><i class="bi bi-grid-1x2"></i> <span>แดชบอร์ด</span></a>
+
+        <div class="nav-section-title">คลังสินค้า</div>
+        <a href="#products" class="sidebar-link"><i class="bi bi-box-seam"></i> <span>รายการสินค้า</span></a>
+        <a href="#product-form" class="sidebar-link"><i class="bi bi-plus-circle"></i> <span>เพิ่มสินค้าใหม่</span></a>
+        <a href="#categories" class="sidebar-link"><i class="bi bi-folder2"></i> <span>หมวดหมู่สินค้า</span></a>
+
+        <div class="nav-section-title">การขายและลูกค้า</div>
+        <a href="#orders" class="sidebar-link"><i class="bi bi-cart3"></i> <span>คำสั่งซื้อ</span></a>
+        <a href="#customers" class="sidebar-link"><i class="bi bi-people"></i> <span>จัดการลูกค้า</span></a>
+
+        <div class="nav-section-title">ห่วงโซ่อุปทาน</div>
+        <a href="#suppliers" class="sidebar-link"><i class="bi bi-buildings"></i> <span>ผู้จัดจำหน่าย</span></a>
+        <a href="#shippers" class="sidebar-link"><i class="bi bi-truck"></i> <span>บริษัทขนส่ง</span></a>
+
+        <div class="nav-section-title">บุคลากรและรายงาน</div>
+        <a href="#employees" class="sidebar-link"><i class="bi bi-person-badge"></i> <span>พนักงาน</span></a>
+        <a href="#reports" class="sidebar-link"><i class="bi bi-graph-up-arrow"></i> <span>รายงานและการวิเคราะห์</span></a>
+
+        <div class="nav-section-title">เอกสารระบบ</div>
+        <a href="api/docs/index.html" target="_blank" class="sidebar-link text-primary"><i class="bi bi-file-earmark-code"></i> <span>API Documentation</span></a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div id="user-avatar" class="brand-icon rounded-circle" style="width:32px;height:32px;font-size:0.85rem">AD</div>
+            <div style="line-height:1.2">
+              <div id="topbar-username" class="fw-semibold small text-truncate" style="max-width:110px">Admin</div>
+              <small id="topbar-userrole" class="text-muted" style="font-size:0.7rem">ADMIN</small>
+            </div>
+          </div>
+          <button id="logout-btn" class="btn btn-sm btn-outline-danger" title="ออกจากระบบ">
+            <i class="bi bi-box-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      
+      <!-- Topbar -->
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button id="sidebar-toggle-btn" class="btn btn-light d-lg-none">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="d-none d-sm-block">
+            <span class="text-muted small">ระบบจัดการฐานข้อมูล Northwind</span>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <a href="api/docs/index.html" target="_blank" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1">
+            <i class="bi bi-journal-code"></i> Swagger API Docs
+          </a>
+          <span class="badge badge-soft-success d-flex align-items-center gap-1">
+            <span class="p-1 rounded-circle bg-success"></span> Online API
+          </span>
+        </div>
+      </header>
+
+      <!-- App Views Body -->
+      <div class="app-content">
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 2: DASHBOARD                            -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-dashboard" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">📊 แดชบอร์ดภาพรวม</h4>
+              <p class="text-muted small mb-0">ข้อมูลสถิติและตัวชี้วัดประสิทธิภาพของธุรกิจ</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" onclick="App.loadDashboard()">
+                <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรชข้อมูล
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+              <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small fw-semibold">รายได้รวมทั้งหมด</div>
+                    <div id="kpi-revenue" class="fs-4 fw-bold mt-1 text-primary">฿0.00</div>
+                  </div>
+                  <div class="kpi-icon-box bg-primary-subtle text-primary">💰</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small fw-semibold">คำสั่งซื้อทั้งหมด</div>
+                    <div id="kpi-orders" class="fs-4 fw-bold mt-1 text-dark">0</div>
+                  </div>
+                  <div class="kpi-icon-box bg-success-subtle text-success">🛒</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small fw-semibold">สินค้าทั้งหมด</div>
+                    <div id="kpi-products" class="fs-4 fw-bold mt-1 text-dark">0</div>
+                  </div>
+                  <div class="kpi-icon-box bg-warning-subtle text-warning">📦</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small fw-semibold">ลูกค้าทั้งหมด</div>
+                    <div id="kpi-customers" class="fs-4 fw-bold mt-1 text-dark">0</div>
+                  </div>
+                  <div class="kpi-icon-box bg-info-subtle text-info">👥</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+              <div class="card card-bms p-3 h-100">
+                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-line text-primary me-2"></i>แนวโน้มยอดขายรายเดือน</h6>
+                <div style="height: 280px; position: relative;">
+                  <canvas id="dashboardSalesChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card card-bms p-3 h-100">
+                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart text-primary me-2"></i>สัดส่วนยอดขายตามหมวดหมู่</h6>
+                <div style="height: 280px; position: relative;">
+                  <canvas id="dashboardCategoryChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tables Row -->
+          <div class="row g-4">
+            <div class="col-lg-7">
+              <div class="card card-bms p-3">
+                <h6 class="fw-bold mb-3"><i class="bi bi-trophy text-warning me-2"></i>สินค้าขายดีสูงสุด 5 อันดับแรก</h6>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead>
+                      <tr><th>#</th><th>ชื่อสินค้า</th><th>หมวดหมู่</th><th class="text-end">จำนวนขาย</th><th class="text-end">ยอดขายรวม</th></tr>
+                    </thead>
+                    <tbody id="top-products-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card card-bms p-3">
+                <h6 class="fw-bold mb-3"><i class="bi bi-award text-success me-2"></i>ลูกค้าที่มียอดสั่งซื้อสูงสุด (Top 5)</h6>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead>
+                      <tr><th>อันดับ</th><th>ชื่อลูกค้า</th><th>ประเทศ</th><th class="text-end">คำสั่งซื้อ</th></tr>
+                    </thead>
+                    <tbody id="top-customers-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 3: PRODUCTS LIST                        -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-products" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">📦 รายการสินค้า</h4>
+              <p class="text-muted small mb-0">ค้นหา กรอง และจัดการข้อมูลสินค้าในระบบ</p>
+            </div>
+            <a href="#product-form" class="btn btn-primary btn-sm">
+              <i class="bi bi-plus-lg me-1"></i> เพิ่มสินค้าใหม่
+            </a>
+          </div>
+
+          <!-- Filters -->
+          <div class="card card-bms p-3 mb-3">
+            <div class="row g-2">
+              <div class="col-md-6 col-lg-4">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                  <input type="text" id="prod-search-input" class="form-control" placeholder="ค้นหาตามชื่อสินค้า...">
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-4">
+                <select id="prod-category-filter" class="form-select form-select-sm">
+                  <option value="">-- กรองตามทุกหมวดหมู่ --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="card card-bms p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>ชื่อสินค้า</th>
+                    <th>หมวดหมู่</th>
+                    <th>ผู้จัดจำหน่าย</th>
+                    <th class="text-end">ราคาต่อหน่วย</th>
+                    <th class="text-center">สถานะ</th>
+                    <th class="text-end">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="products-tbody"></tbody>
+              </table>
+            </div>
+            <div id="prod-pagination" class="p-3 border-top"></div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 4: PRODUCT FORM                         -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-product-form" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h4 id="product-form-title" class="fw-bold mb-0">➕ เพิ่มสินค้าใหม่</h4>
+              <p class="text-muted small mb-0">กรอกข้อมูลสินค้าและตรวจสอบความถูกต้องก่อนบันทึก</p>
+            </div>
+            <a href="#products" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> กลับไปหน้ารายการสินค้า
+            </a>
+          </div>
+
+          <div class="card card-bms p-4" style="max-width: 800px;">
+            <form id="product-form-element" novalidate>
+              <input type="hidden" id="form-prod-id">
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">ชื่อสินค้า <span class="text-danger">*</span></label>
+                <input type="text" id="form-prod-name" class="form-control" required placeholder="เช่น ชาเขียวมะลิพรีเมียม">
+                <div class="invalid-feedback">กรุณาระบุชื่อสินค้า</div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">ราคาต่อหน่วย (บาท) <span class="text-danger">*</span></label>
+                  <input type="number" id="form-prod-price" class="form-control" step="0.01" min="0" required placeholder="0.00">
+                  <div class="invalid-feedback">กรุณาระบุราคาเป็นตัวเลขที่มากกว่าหรือเท่ากับ 0</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">ขนาดบรรจุ / หน่วย <span class="text-danger">*</span></label>
+                  <input type="text" id="form-prod-unit" class="form-control" required placeholder="เช่น 24 ขวด x 500 ml">
+                  <div class="invalid-feedback">กรุณาระบุหน่วยสินค้า</div>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">หมวดหมู่สินค้า <span class="text-danger">*</span></label>
+                  <select id="form-prod-category" class="form-select" required>
+                    <option value="">-- กรุณาเลือก --</option>
+                  </select>
+                  <div class="invalid-feedback">กรุณาเลือกหมวดหมู่สินค้า</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">ผู้จัดจำหน่าย (Supplier) <span class="text-danger">*</span></label>
+                  <select id="form-prod-supplier" class="form-select" required>
+                    <option value="">-- กรุณาเลือก --</option>
+                  </select>
+                  <div class="invalid-feedback">กรุณาเลือกผู้จัดจำหน่าย</div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2">
+                <a href="#products" class="btn btn-light">ยกเลิก</a>
+                <button type="submit" id="form-prod-submit-btn" class="btn btn-primary">
+                  <i class="bi bi-check-circle me-1"></i> บันทึกข้อมูล
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 5: CATEGORIES                           -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-categories" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">🗂 หมวดหมู่สินค้า</h4>
+              <p class="text-muted small mb-0">จัดการหมวดหมู่และการจัดกลุ่มสินค้าทั้งหมด</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="App.openCategoryModal()">
+              <i class="bi bi-plus-lg me-1"></i> เพิ่มหมวดหมู่ใหม่
+            </button>
+          </div>
+
+          <div class="card card-bms p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>ชื่อหมวดหมู่</th>
+                    <th>คำอธิบาย</th>
+                    <th>จำนวนสินค้า</th>
+                    <th class="text-end">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="categories-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 6: ORDERS LIST                          -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-orders" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">🛒 รายการคำสั่งซื้อ</h4>
+              <p class="text-muted small mb-0">รายการคำสั่งซื้อของลูกค้าและสถานะการจัดส่ง</p>
+            </div>
+          </div>
+
+          <div class="card card-bms p-3 mb-3">
+            <div class="row g-2">
+              <div class="col-md-6 col-lg-4">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                  <input type="text" id="orders-search-input" class="form-control" placeholder="ค้นหาตามรหัสคำสั่งซื้อ หรือชื่อลูกค้า..." oninput="App.debounce(() => App.loadOrders(1), 350)()">
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-4">
+                <select id="orders-shipper-filter" class="form-select form-select-sm" onchange="App.loadOrders(1)">
+                  <option value="">-- กรองตามทุกบริษัทขนส่ง --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-bms p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>รหัสคำสั่งซื้อ</th>
+                    <th>ลูกค้า</th>
+                    <th>วันที่สั่งซื้อ</th>
+                    <th>พนักงานผู้ดูแล</th>
+                    <th>บริษัทขนส่ง</th>
+                    <th class="text-end">ยอดรวม</th>
+                    <th class="text-end">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-tbody"></tbody>
+              </table>
+            </div>
+            <div id="orders-pagination" class="p-3 border-top"></div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 7: ORDER DETAILS                        -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-order-detail" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">🧾 รายละเอียดคำสั่งซื้อ <span id="detail-order-id" class="text-primary"></span></h4>
+              <p class="text-muted small mb-0">วันที่สั่งซื้อ: <span id="detail-order-date" class="fw-semibold"></span></p>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="#orders" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> กลับไปหน้ารายการคำสั่งซื้อ
+              </a>
+              <button class="btn btn-sm btn-primary" onclick="App.openAddItemModal()">
+                <i class="bi bi-plus-lg me-1"></i> เพิ่มสินค้าในออร์เดอร์
+              </button>
+            </div>
+          </div>
+
+          <div class="row g-4 mb-4">
+            <div class="col-md-6">
+              <div class="card card-bms p-3 h-100">
+                <h6 class="fw-bold mb-3"><i class="bi bi-person text-primary me-2"></i>ข้อมูลลูกค้า</h6>
+                <div class="small mb-1 text-muted">ชื่อบริษัท / ลูกค้า:</div>
+                <div id="detail-customer-name" class="fw-bold text-dark mb-2"></div>
+                <div class="small mb-1 text-muted">ชื่อผู้ติดต่อ:</div>
+                <div id="detail-contact-name" class="fw-semibold text-dark mb-2"></div>
+                <div class="small mb-1 text-muted">ที่อยู่จัดส่ง:</div>
+                <div id="detail-customer-address" class="text-dark"></div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-bms p-3 h-100">
+                <h6 class="fw-bold mb-3"><i class="bi bi-truck text-primary me-2"></i>ข้อมูลการจัดส่งและผู้ประสานงาน</h6>
+                <div class="small mb-1 text-muted">พนักงานผู้ดูแลคำสั่งซื้อ:</div>
+                <div id="detail-employee-name" class="fw-semibold text-dark mb-2"></div>
+                <div class="small mb-1 text-muted">บริษัทขนส่ง:</div>
+                <div id="detail-shipper-name" class="fw-bold text-dark mb-2"></div>
+                <div class="small mb-1 text-muted">เบอร์โทรศัพท์ขนส่ง:</div>
+                <div id="detail-shipper-phone" class="text-dark"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-bms p-0 overflow-hidden mb-3">
+            <div class="p-3 bg-light border-bottom fw-bold d-flex justify-content-between align-items-center">
+              <span>รายการสินค้าในคำสั่งซื้อ</span>
+              <span class="text-muted small">จำนวนสินค้าทั้งหมด</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>ลำดับ</th>
+                    <th>สินค้า</th>
+                    <th>หมวดหมู่</th>
+                    <th class="text-end">ราคาต่อหน่วย</th>
+                    <th class="text-center">จำนวน</th>
+                    <th class="text-end">รวมเป็นเงิน</th>
+                    <th class="text-end">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="order-items-tbody"></tbody>
+              </table>
+            </div>
+            <div class="p-3 bg-light border-top text-end">
+              <span class="fs-6 me-2">ยอดรวมสุทธิ:</span>
+              <span id="detail-total-amount" class="fs-4 fw-bold text-primary">฿0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 8: CUSTOMERS                            -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-customers" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">👥 จัดการลูกค้า</h4>
+              <p class="text-muted small mb-0">รายชื่อลูกค้าและคู่ค้าทางธุรกิจทั้งหมด</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="App.openCustomerModal()">
+              <i class="bi bi-person-plus me-1"></i> เพิ่มลูกค้าใหม่
+            </button>
+          </div>
+
+          <div class="card card-bms p-3 mb-3">
+            <div class="input-group input-group-sm" style="max-width: 400px;">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" id="cust-search-input" class="form-control" placeholder="ค้นหาชื่อลูกค้า, ประเทศ หรือเมือง..." oninput="App.debounce(() => App.loadCustomers(1), 350)()">
+            </div>
+          </div>
+
+          <div class="card card-bms p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>ชื่อบริษัท / ลูกค้า</th>
+                    <th>ชื่อผู้ติดต่อ</th>
+                    <th>ประเทศ</th>
+                    <th>เมือง</th>
+                    <th>ยอดสั่งซื้อ</th>
+                    <th class="text-end">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-tbody"></tbody>
+              </table>
+            </div>
+            <div id="cust-pagination" class="p-3 border-top"></div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 9: SUPPLIERS                            -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-suppliers" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">🏭 จัดการผู้จัดจำหน่าย (Suppliers)</h4>
+              <p class="text-muted small mb-0">ข้อมูลคู่ค้า ซัพพลายเออร์ และการจัดส่งสินค้า</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="App.openSupplierModal()">
+              <i class="bi bi-plus-lg me-1"></i> เพิ่มผู้จัดจำหน่ายใหม่
+            </button>
+          </div>
+
+          <div class="card card-bms p-3 mb-3">
+            <div class="input-group input-group-sm" style="max-width: 400px;">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" id="sup-search-input" class="form-control" placeholder="ค้นหาชื่อผู้จัดจำหน่าย, ประเทศ..." oninput="App.debounce(() => App.loadSuppliers(1), 350)()">
+            </div>
+          </div>
+
+          <div class="card card-bms p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>ชื่อบริษัทผู้จัดจำหน่าย</th>
+                    <th>ผู้ติดต่อ</th>
+                    <th>ประเทศ</th>
+                    <th>เบอร์โทรศัพท์</th>
+                    <th>สินค้าที่จัดส่ง</th>
+                    <th class="text-end">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="suppliers-tbody"></tbody>
+              </table>
+            </div>
+            <div id="sup-pagination" class="p-3 border-top"></div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 10: EMPLOYEES                           -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-employees" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">👤 จัดการพนักงาน</h4>
+              <p class="text-muted small mb-0">ข้อมูลพนักงานและผลงานการดูแลคำสั่งซื้อ</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="App.openEmployeeModal()">
+              <i class="bi bi-person-plus me-1"></i> เพิ่มพนักงานใหม่
+            </button>
+          </div>
+
+          <div id="employees-grid" class="row"></div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 11: SHIPPERS                            -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-shippers" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">🚚 จัดการบริษัทขนส่ง (Shippers)</h4>
+              <p class="text-muted small mb-0">รายชื่อคู่ค้าโลจิสติกส์และการกระจายสินค้า</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="App.openShipperModal()">
+              <i class="bi bi-plus-lg me-1"></i> เพิ่มบริษัทขนส่งใหม่
+            </button>
+          </div>
+
+          <div id="shippers-grid" class="row"></div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- SCREEN 12: REPORTS & EXPORT                    -->
+        <!-- ══════════════════════════════════════════════ -->
+        <div id="screen-reports" class="screen-view">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h4 class="fw-bold mb-0">📈 รายงานและการส่งออกข้อมูล</h4>
+              <p class="text-muted small mb-0">วิเคราะห์ผลการดำเนินงานและส่งออกเป็นไฟล์ CSV รองรับภาษาไทยใน Microsoft Excel</p>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-download me-1"></i> ส่งออกข้อมูล (CSV)
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" onclick="App.exportReport('products')"><i class="bi bi-file-earmark-spreadsheet me-2 text-success"></i>รายงานสินค้า (Products CSV)</button></li>
+                <li><button class="dropdown-item" onclick="App.exportReport('orders')"><i class="bi bi-file-earmark-spreadsheet me-2 text-primary"></i>รายงานคำสั่งซื้อ (Orders CSV)</button></li>
+                <li><button class="dropdown-item" onclick="App.exportReport('categories')"><i class="bi bi-file-earmark-spreadsheet me-2 text-warning"></i>รายงานหมวดหมู่ (Categories CSV)</button></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+              <div class="card card-bms p-3 h-100">
+                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart text-primary me-2"></i>รายงานยอดขายตามหมวดหมู่</h6>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead>
+                      <tr><th>หมวดหมู่</th><th class="text-center">จำนวนสินค้า</th><th class="text-end">หน่วยที่ขายได้</th><th class="text-end">ยอดขายรวม</th></tr>
+                    </thead>
+                    <tbody id="report-category-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="card card-bms p-3 h-100">
+                <h6 class="fw-bold mb-3"><i class="bi bi-truck text-primary me-2"></i>รายงานประสิทธิภาพบริษัทขนส่ง</h6>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead>
+                      <tr><th>บริษัทขนส่ง</th><th class="text-center">จำนวนเที่ยว</th><th class="text-end">มูลค่าสินค้ารวม</th></tr>
+                    </thead>
+                    <tbody id="report-shipper-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-bms p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-award text-primary me-2"></i>รายงานผลงานการขายแยกตามพนักงาน</h6>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr><th>พนักงานขาย</th><th class="text-center">คำสั่งซื้อที่ดำเนินการ</th><th class="text-end">ยอดขายที่ทำได้</th></tr>
+                </thead>
+                <tbody id="report-employee-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- MODALS FOR CRUD OPERATIONS                         -->
+  <!-- ══════════════════════════════════════════════════ -->
+
+  <!-- 1. Category Modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold" id="cat-modal-title">หมวดหมู่สินค้า</h6>
+          <button type="button" class="btn-close" data-bs-toggle="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="cat-modal-id">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">ชื่อหมวดหมู่</label>
+            <input type="text" id="cat-modal-name" class="form-control" required placeholder="เช่น อาหารสำเร็จรูป">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">คำอธิบาย</label>
+            <textarea id="cat-modal-desc" class="form-control" rows="3" required placeholder="คำอธิบายหมวดหมู่..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.saveCategoryModal()">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Customer Modal -->
+  <div class="modal fade" id="customerModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold" id="cust-modal-title">ข้อมูลลูกค้า</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="customer-modal-form">
+            <input type="hidden" id="cust-modal-id">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ชื่อบริษัท / ลูกค้า <span class="text-danger">*</span></label>
+              <input type="text" id="cust-modal-name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ชื่อผู้ติดต่อ <span class="text-danger">*</span></label>
+              <input type="text" id="cust-modal-contact" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ที่อยู่</label>
+              <input type="text" id="cust-modal-address" class="form-control">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">เมือง</label>
+                <input type="text" id="cust-modal-city" class="form-control">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">รหัสไปรษณีย์</label>
+                <input type="text" id="cust-modal-postal" class="form-control">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ประเทศ <span class="text-danger">*</span></label>
+              <input type="text" id="cust-modal-country" class="form-control" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.saveCustomerModal()">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Supplier Modal -->
+  <div class="modal fade" id="supplierModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold" id="sup-modal-title">ผู้จัดจำหน่าย</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="supplier-modal-form">
+            <input type="hidden" id="sup-modal-id">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ชื่อบริษัทผู้จัดจำหน่าย <span class="text-danger">*</span></label>
+              <input type="text" id="sup-modal-name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ชื่อผู้ติดต่อ <span class="text-danger">*</span></label>
+              <input type="text" id="sup-modal-contact" class="form-control" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">ประเทศ <span class="text-danger">*</span></label>
+                <input type="text" id="sup-modal-country" class="form-control" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                <input type="text" id="sup-modal-phone" class="form-control" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">ที่อยู่</label>
+              <input type="text" id="sup-modal-address" class="form-control">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.saveSupplierModal()">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Employee Modal -->
+  <div class="modal fade" id="employeeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold" id="emp-modal-title">ข้อมูลพนักงาน</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="employee-modal-form">
+            <input type="hidden" id="emp-modal-id">
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">ชื่อ <span class="text-danger">*</span></label>
+                <input type="text" id="emp-modal-first" class="form-control" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">นามสกุล <span class="text-danger">*</span></label>
+                <input type="text" id="emp-modal-last" class="form-control" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">วันเกิด <span class="text-danger">*</span></label>
+              <input type="text" id="emp-modal-birth" class="form-control" placeholder="เช่น 15/5/1990 หรือ 1990-05-15" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">บันทึกเกี่ยวกับพนักงาน</label>
+              <textarea id="emp-modal-notes" class="form-control" rows="2"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.saveEmployeeModal()">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Shipper Modal -->
+  <div class="modal fade" id="shipperModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold" id="ship-modal-title">บริษัทขนส่ง</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="ship-modal-id">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">ชื่อบริษัทขนส่ง <span class="text-danger">*</span></label>
+            <input type="text" id="ship-modal-name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">เบอร์โทรศัพท์ติดต่อ <span class="text-danger">*</span></label>
+            <input type="text" id="ship-modal-phone" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.saveShipperModal()">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Order Item Modal -->
+  <div class="modal fade" id="orderItemModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold">เพิ่มสินค้าในคำสั่งซื้อ</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">เลือกสินค้า</label>
+            <select id="modal-item-product" class="form-select" required></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">จำนวนที่สั่งซื้อ</label>
+            <input type="number" id="modal-item-qty" class="form-control" min="1" value="1" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.saveOrderItemModal()">เพิ่มรายการ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="global-toast" class="toast align-items-center border-0" role="alert">
+      <div class="d-flex">
+        <div id="global-toast-body" class="toast-body"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- BMS Scripts -->
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

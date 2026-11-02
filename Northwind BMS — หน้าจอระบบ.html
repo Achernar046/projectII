@@ -1,0 +1,1166 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Northwind BMS — หน้าจอระบบ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ─── Design Tokens ───────────────────────────────── */
+:root {
+  /* Colors */
+  --bg:        #F0F4F8;
+  --surface:   #FFFFFF;
+  --surface-2: #F8FAFC;
+  --border:    #E2E8F0;
+  --primary:   #2563EB;
+  --primary-dk:#1D4ED8;
+  --primary-lt:#DBEAFE;
+  --ink:       #0F172A;
+  --ink-2:     #475569;
+  --ink-3:     #94A3B8;
+  --success:   #16A34A;
+  --success-lt:#DCFCE7;
+  --warn:      #D97706;
+  --warn-lt:   #FEF3C7;
+  --danger:    #DC2626;
+  --danger-lt: #FEE2E2;
+  --sidebar-w: 220px;
+  --topbar-h:  52px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0F172A;
+    --surface:   #1E293B;
+    --surface-2: #0F172A;
+    --border:    #334155;
+    --primary:   #3B82F6;
+    --primary-dk:#2563EB;
+    --primary-lt:#1E3A5F;
+    --ink:       #F1F5F9;
+    --ink-2:     #94A3B8;
+    --ink-3:     #475569;
+    --success:   #22C55E;
+    --success-lt:#14532D;
+    --warn:      #F59E0B;
+    --warn-lt:   #451A03;
+    --danger:    #EF4444;
+    --danger-lt: #450A0A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:        #0F172A;
+  --surface:   #1E293B;
+  --surface-2: #0F172A;
+  --border:    #334155;
+  --primary:   #3B82F6;
+  --primary-dk:#2563EB;
+  --primary-lt:#1E3A5F;
+  --ink:       #F1F5F9;
+  --ink-2:     #94A3B8;
+  --ink-3:     #475569;
+  --success:   #22C55E;
+  --success-lt:#14532D;
+  --warn:      #F59E0B;
+  --warn-lt:   #451A03;
+  --danger:    #EF4444;
+  --danger-lt: #450A0A;
+  color-scheme: dark;
+}
+
+/* ─── Reset & Base ───────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+button { font-family: inherit; cursor: pointer; }
+
+/* ─── App Shell ───────────────────────────────── */
+.shell { display: flex; min-height: 100vh; }
+
+/* ─── Sidebar ───────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100%;
+  z-index: 30; transition: transform .25s;
+}
+.sidebar-logo {
+  height: var(--topbar-h);
+  display: flex; align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.logo-mark {
+  width: 28px; height: 28px;
+  background: var(--primary);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 13px; flex-shrink: 0;
+}
+.logo-text { font-weight: 700; font-size: 14px; color: var(--ink); }
+.logo-sub  { font-size: 10px; color: var(--ink-3); line-height: 1; margin-top: 1px; }
+
+.nav { flex: 1; overflow-y: auto; padding: 12px 8px; }
+.nav-group { margin-bottom: 20px; }
+.nav-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-3);
+  padding: 0 8px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 7px;
+  cursor: pointer; color: var(--ink-2);
+  font-size: 13.5px; font-weight: 500;
+  transition: background .15s, color .15s;
+  border: none; background: transparent; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--ink); }
+.nav-item.active { background: var(--primary-lt); color: var(--primary); }
+.nav-icon { font-size: 16px; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 12px 8px;
+  border-top: 1px solid var(--border);
+}
+.user-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 7px;
+}
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.user-name  { font-size: 13px; font-weight: 600; color: var(--ink); }
+.user-role  { font-size: 11px; color: var(--ink-3); }
+
+/* ─── Main ───────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; display: flex; flex-direction: column;
+  min-height: 100vh;
+}
+.topbar {
+  height: var(--topbar-h); background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; position: sticky; top: 0; z-index: 20;
+}
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.breadcrumb span.sep { color: var(--ink-3); }
+.breadcrumb span.cur { color: var(--ink); font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.search-box {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px;
+  font-size: 13px; color: var(--ink-3);
+}
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; color: var(--ink-2);
+}
+
+.page-content { flex: 1; padding: 24px; }
+
+/* ─── Screens (tab system) ───────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ─── Page Header ───────────────────────────────── */
+.page-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 20px;
+  gap: 16px; flex-wrap: wrap;
+}
+.page-title { font-size: 20px; font-weight: 700; color: var(--ink); }
+.page-desc  { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.btn-row    { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ─── Buttons ───────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px; border: none;
+  font-size: 13.5px; font-weight: 600; font-family: inherit;
+  cursor: pointer; white-space: nowrap; transition: opacity .15s;
+}
+.btn:hover { opacity: .88; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-outline { background: transparent; color: var(--ink-2); border: 1px solid var(--border); }
+.btn-danger  { background: var(--danger-lt); color: var(--danger); }
+.btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
+
+/* ─── KPI Cards ───────────────────────────────── */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px 20px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.kpi-label { font-size: 12px; color: var(--ink-2); font-weight: 500; margin-bottom: 6px; }
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1; }
+.kpi-trend { font-size: 11.5px; margin-top: 6px; }
+.kpi-trend.up   { color: var(--success); }
+.kpi-trend.down { color: var(--danger); }
+.kpi-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+/* ─── Cards ───────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.card-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+.card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* ─── Filters bar ───────────────────────────────── */
+.filter-bar {
+  display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-input, .filter-select {
+  padding: 7px 12px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--surface);
+  color: var(--ink); font-size: 13px; font-family: inherit;
+}
+.filter-input { min-width: 200px; }
+.filter-select { }
+
+/* ─── Table ───────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th {
+  text-align: left; padding: 10px 14px;
+  background: var(--surface-2); border-bottom: 2px solid var(--border);
+  font-weight: 700; font-size: 12px; color: var(--ink-2);
+  white-space: nowrap; text-transform: uppercase; letter-spacing: .04em;
+}
+td {
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  color: var(--ink); vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface-2); }
+
+/* ─── Badge ───────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: 20px;
+  font-size: 11.5px; font-weight: 600; white-space: nowrap;
+}
+.badge-green  { background: var(--success-lt); color: var(--success); }
+.badge-amber  { background: var(--warn-lt);    color: var(--warn); }
+.badge-red    { background: var(--danger-lt);  color: var(--danger); }
+.badge-blue   { background: var(--primary-lt); color: var(--primary); }
+.badge-gray   { background: var(--surface-2);  color: var(--ink-2); border:1px solid var(--border); }
+
+/* ─── Pagination ───────────────────────────────── */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0 0; font-size: 13px; color: var(--ink-2);
+}
+.page-btns { display: flex; gap: 4px; }
+.page-btn {
+  width: 30px; height: 30px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--ink-2); cursor: pointer;
+}
+.page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ─── Mini bar chart ───────────────────────────────── */
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; padding: 4px 0; }
+.bar-wrap   { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; }
+.bar-col    { width: 100%; background: var(--primary); border-radius: 4px 4px 0 0; min-height: 4px; }
+.bar-lbl    { font-size: 10px; color: var(--ink-3); }
+
+/* ─── Form ───────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.form-input, .form-select, .form-textarea {
+  padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--surface);
+  color: var(--ink); font-size: 13.5px; font-family: inherit;
+  transition: border-color .15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-hint { font-size: 11.5px; color: var(--ink-3); }
+.required::after { content: ' *'; color: var(--danger); }
+
+/* ─── Login ───────────────────────────────── */
+.login-wrap {
+  min-height: 100vh; display: flex;
+  align-items: center; justify-content: center;
+  background: var(--bg); padding: 24px;
+}
+.login-card {
+  width: 100%; max-width: 400px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+}
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.login-title { font-size: 20px; font-weight: 700; color: var(--ink); }
+.login-sub { font-size: 13px; color: var(--ink-2); }
+.login-footer {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 20px; font-size: 12px; color: var(--ink-3);
+}
+
+/* ─── Employee card ───────────────────────────────── */
+.emp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.emp-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; text-align: center;
+}
+.emp-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; margin: 0 auto 12px;
+}
+.emp-name  { font-size: 14px; font-weight: 700; color: var(--ink); }
+.emp-title { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+.emp-meta  { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; }
+
+/* ─── Category cards ───────────────────────────────── */
+.cat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.cat-icon { font-size: 28px; margin-bottom: 10px; }
+.cat-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.cat-desc { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+.cat-count { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; }
+
+/* ─── Order detail ───────────────────────────────── */
+.detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.info-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--ink-2); }
+.info-val   { font-weight: 600; color: var(--ink); }
+
+/* ─── Chart placeholder ───────────────────────────────── */
+.chart-placeholder {
+  background: var(--surface-2); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-3); font-size: 13px;
+}
+
+/* ─── Analytics tabs ───────────────────────────────── */
+.tab-list {
+  display: flex; gap: 4px;
+  background: var(--surface-2); border-radius: 10px; padding: 4px;
+  width: fit-content; margin-bottom: 20px;
+}
+.tab-item {
+  padding: 6px 16px; border-radius: 7px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--ink-2); border: none; background: transparent;
+  font-family: inherit; white-space: nowrap;
+}
+.tab-item.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+/* ─── Progress bar ───────────────────────────────── */
+.prog-row { margin-bottom: 12px; }
+.prog-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 5px; }
+.prog-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; background: var(--primary); }
+
+/* ─── Shipper card ───────────────────────────────── */
+.shipper-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+
+/* ─── Nav tabs (screen switcher) ───────────────────────────────── */
+#nav-tabs {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding: 12px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-tab {
+  padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  background: var(--surface-2); color: var(--ink-2);
+  font-family: inherit; transition: all .15s; white-space: nowrap;
+}
+.nav-tab:hover { background: var(--primary-lt); border-color: var(--primary); color: var(--primary); }
+.nav-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .card-grid-2, .form-grid { grid-template-columns: 1fr; }
+  .emp-grid  { grid-template-columns: repeat(2, 1fr); }
+  .card-grid-3 { grid-template-columns: 1fr 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<!-- Screen Switcher (prototype navigation) -->
+<div id="nav-tabs">
+  <button class="nav-tab active" onclick="show('login')">🔐 เข้าสู่ระบบ</button>
+  <button class="nav-tab" onclick="show('dashboard')">📊 แดชบอร์ด</button>
+  <button class="nav-tab" onclick="show('products')">📦 สินค้า</button>
+  <button class="nav-tab" onclick="show('product-form')">➕ เพิ่ม/แก้ไขสินค้า</button>
+  <button class="nav-tab" onclick="show('categories')">🗂 หมวดหมู่</button>
+  <button class="nav-tab" onclick="show('orders')">🛒 คำสั่งซื้อ</button>
+  <button class="nav-tab" onclick="show('order-detail')">🧾 รายละเอียดคำสั่งซื้อ</button>
+  <button class="nav-tab" onclick="show('customers')">👥 ลูกค้า</button>
+  <button class="nav-tab" onclick="show('suppliers')">🏭 ผู้จัดจำหน่าย</button>
+  <button class="nav-tab" onclick="show('employees')">👤 พนักงาน</button>
+  <button class="nav-tab" onclick="show('shippers')">🚚 บริษัทขนส่ง</button>
+  <button class="nav-tab" onclick="show('reports')">📈 รายงาน</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 1: LOGIN                                   -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-mark" style="width:40px;height:40px;font-size:16px;border-radius:10px">NW</div>
+        <div>
+          <div style="font-size:18px;font-weight:700;color:var(--ink)">Northwind BMS</div>
+          <div style="font-size:12px;color:var(--ink-3)">ระบบจัดการธุรกิจ</div>
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div class="login-title">ยินดีต้อนรับ 👋</div>
+        <div class="login-sub">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label required">อีเมล / ชื่อผู้ใช้</label>
+        <input class="form-input" value="admin@northwind.co.th" placeholder="กรอกอีเมล">
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <label class="form-label required">รหัสผ่าน</label>
+          <a style="font-size:12px;color:var(--primary);text-decoration:none">ลืมรหัสผ่าน?</a>
+        </div>
+        <input class="form-input" type="password" value="••••••••">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px">
+        🔐 เข้าสู่ระบบ
+      </button>
+      <div class="login-footer">
+        <span>🔒</span>
+        <span>ระบบป้องกันด้วย JWT · ล็อกอัตโนมัติหลัง 24 ชั่วโมง</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 2: DASHBOARD                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="dashboard" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">NW</div>
+        <div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div>
+      </div>
+      <div class="nav">
+        <div class="nav-group">
+          <div class="nav-label">หน้าหลัก</div>
+          <button class="nav-item active"><span class="nav-icon">📊</span> แดชบอร์ด</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">คลังสินค้า</div>
+          <button class="nav-item"><span class="nav-icon">📦</span> สินค้า</button>
+          <button class="nav-item"><span class="nav-icon">🗂</span> หมวดหมู่สินค้า</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">การขาย</div>
+          <button class="nav-item"><span class="nav-icon">🛒</span> คำสั่งซื้อ</button>
+          <button class="nav-item"><span class="nav-icon">👥</span> ลูกค้า</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">ห่วงโซ่อุปทาน</div>
+          <button class="nav-item"><span class="nav-icon">🏭</span> ผู้จัดจำหน่าย</button>
+          <button class="nav-item"><span class="nav-icon">🚚</span> บริษัทขนส่ง</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">บุคลากร</div>
+          <button class="nav-item"><span class="nav-icon">👤</span> พนักงาน</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">วิเคราะห์</div>
+          <button class="nav-item"><span class="nav-icon">📈</span> รายงาน</button>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="avatar">วช</div>
+          <div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div>
+        </div>
+      </div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">แดชบอร์ด</span></div>
+        <div class="topbar-right">
+          <div class="search-box">🔍 ค้นหา...</div>
+          <div class="icon-btn">🔔</div>
+          <div class="icon-btn">⚙️</div>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">แดชบอร์ดภาพรวม</div><div class="page-desc">ข้อมูล ณ วันที่ 4 ตุลาคม 2569</div></div>
+          <button class="btn btn-outline">🔄 รีเฟรชข้อมูล</button>
+        </div>
+
+        <!-- KPI row -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-label">คำสั่งซื้อทั้งหมด</div>
+              <div class="kpi-value">196</div>
+              <div class="kpi-trend up">▲ 12% จากเดือนก่อน</div>
+            </div>
+            <div class="kpi-icon" style="background:#DBEAFE">🛒</div>
+          </div>
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-label">รายการสินค้า</div>
+              <div class="kpi-value">79</div>
+              <div class="kpi-trend" style="color:var(--ink-3)">— คงที่</div>
+            </div>
+            <div class="kpi-icon" style="background:#DCFCE7">📦</div>
+          </div>
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-label">จำนวนลูกค้า</div>
+              <div class="kpi-value">91</div>
+              <div class="kpi-trend up">▲ 5 รายใหม่</div>
+            </div>
+            <div class="kpi-icon" style="background:#FEF3C7">👥</div>
+          </div>
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-label">ผู้จัดจำหน่าย</div>
+              <div class="kpi-value">29</div>
+              <div class="kpi-trend" style="color:var(--ink-3)">— คงที่</div>
+            </div>
+            <div class="kpi-icon" style="background:#F3E8FF">🏭</div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="card-grid-2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-title">📊 คำสั่งซื้อรายเดือน (ปี 2540)</div>
+            <div class="bar-chart">
+              <div class="bar-wrap"><div class="bar-col" style="height:38px"></div><div class="bar-lbl">เม.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:52px"></div><div class="bar-lbl">พ.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:44px"></div><div class="bar-lbl">มิ.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:60px"></div><div class="bar-lbl">ก.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:56px"></div><div class="bar-lbl">ส.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:70px"></div><div class="bar-lbl">ก.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:64px"></div><div class="bar-lbl">ต.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:76px"></div><div class="bar-lbl">พ.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:68px"></div><div class="bar-lbl">ธ.ค</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">🏆 หมวดหมู่ยอดนิยม</div>
+            <div class="prog-row"><div class="prog-label"><span>เครื่องดื่ม</span><span style="font-weight:700">12 รายการ</span></div><div class="prog-bar"><div class="prog-fill" style="width:75%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>เครื่องปรุงรส</span><span style="font-weight:700">13 รายการ</span></div><div class="prog-bar"><div class="prog-fill" style="width:82%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>ขนมหวาน</span><span style="font-weight:700">7 รายการ</span></div><div class="prog-bar"><div class="prog-fill" style="width:44%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>เนื้อสัตว์</span><span style="font-weight:700">6 รายการ</span></div><div class="prog-bar"><div class="prog-fill" style="width:38%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>อาหารทะเล</span><span style="font-weight:700">8 รายการ</span></div><div class="prog-bar"><div class="prog-fill" style="width:50%"></div></div></div>
+          </div>
+        </div>
+
+        <!-- Recent orders -->
+        <div class="card">
+          <div class="card-title">🕐 คำสั่งซื้อล่าสุด</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>เลขที่คำสั่งซื้อ</th><th>ลูกค้า</th><th>พนักงาน</th><th>วันที่</th><th>บริษัทขนส่ง</th><th>สถานะ</th>
+              </tr></thead>
+              <tbody>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10443</td><td>Ernst Handel</td><td>แอนน์ ด็อดส์เวิร์ท</td><td>2 ธ.ค. 2540</td><td>Federal Shipping</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10442</td><td>Ernst Handel</td><td>แอนดรูว์ ฟูลเลอร์</td><td>1 ธ.ค. 2540</td><td>United Package</td><td><span class="badge badge-amber">กำลังดำเนินการ</span></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10441</td><td>Old World Delicatessen</td><td>โรเบิร์ต คิง</td><td>29 พ.ย. 2540</td><td>Speedy Express</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10440</td><td>Save-a-lot Markets</td><td>แจเน็ต เลฟเวอร์ลิง</td><td>28 พ.ย. 2540</td><td>United Package</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10439</td><td>Mère Paillarde</td><td>สตีเวน บิวแชน</td><td>28 พ.ย. 2540</td><td>Federal Shipping</td><td><span class="badge badge-red">ยกเลิก</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 3: PRODUCTS LIST                           -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="products" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">คลังสินค้า</div><button class="nav-item active"><span class="nav-icon">📦</span> สินค้า</button><button class="nav-item"><span class="nav-icon">🗂</span> หมวดหมู่สินค้า</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">สินค้า</span></div>
+        <div class="topbar-right"><div class="search-box">🔍 ค้นหา...</div></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">รายการสินค้าทั้งหมด</div><div class="page-desc">79 รายการ · อัปเดตล่าสุด 4 ต.ค. 2569</div></div>
+          <div class="btn-row">
+            <button class="btn btn-outline">📥 นำออก CSV</button>
+            <button class="btn btn-primary">➕ เพิ่มสินค้าใหม่</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="🔍 ค้นหาชื่อสินค้า...">
+          <select class="filter-select"><option>ทุกหมวดหมู่</option><option>เครื่องดื่ม</option><option>เครื่องปรุงรส</option><option>ขนมหวาน</option><option>เนื้อสัตว์</option><option>อาหารทะเล</option></select>
+          <select class="filter-select"><option>ทุกผู้จัดจำหน่าย</option><option>Exotic Liquids</option><option>New Orleans Cajun</option></select>
+          <select class="filter-select"><option>แสดง 25 รายการ</option><option>10</option><option>50</option><option>100</option></select>
+        </div>
+        <div class="card" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>รหัส</th><th>ชื่อสินค้า</th><th>หมวดหมู่</th><th>ผู้จัดจำหน่าย</th><th>หน่วย</th><th>ราคา (บาท)</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:'IBM Plex Mono'">001</td><td style="font-weight:600">ชาไทย</td><td><span class="badge badge-blue">เครื่องดื่ม</span></td><td>Exotic Liquids</td><td>10 กล่อง × 20 ถุง</td><td style="font-weight:700;font-family:'IBM Plex Mono'">฿18.00</td><td><span class="badge badge-green">ใช้งานอยู่</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">002</td><td style="font-weight:600">น้ำซุปชาม</td><td><span class="badge badge-blue">เครื่องปรุง</span></td><td>Tokyo Traders</td><td>24 — 250 กรัม</td><td style="font-weight:700;font-family:'IBM Plex Mono'">฿19.00</td><td><span class="badge badge-green">ใช้งานอยู่</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">017</td><td style="font-weight:600">ลูกอมผลไม้รวม</td><td><span class="badge badge-blue">ขนมหวาน</span></td><td>Pavlova Ltd</td><td>16 — 500 กรัม</td><td style="font-weight:700;font-family:'IBM Plex Mono'">฿39.00</td><td><span class="badge badge-green">ใช้งานอยู่</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">043</td><td style="font-weight:600">กาแฟอิโปห์</td><td><span class="badge badge-blue">เครื่องดื่ม</span></td><td>Leka Trading</td><td>16 — 500 กรัม</td><td style="font-weight:700;font-family:'IBM Plex Mono';color:var(--warn)">฿600.00</td><td><span class="badge badge-amber">ตรวจสอบ</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">051</td><td style="font-weight:600">แมนจิมัป</td><td><span class="badge badge-blue">เครื่องปรุง</span></td><td>G'day Mate</td><td>2 กล่อง × 12 ขวด</td><td style="font-weight:700;font-family:'IBM Plex Mono'">฿53.00</td><td><span class="badge badge-green">ใช้งานอยู่</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">063</td><td style="font-weight:600">แซนด์วิชฟิงเกอร์</td><td><span class="badge badge-blue">อาหารทะเล</span></td><td>Nord-Ost-Fisch</td><td>15 กล่อง × 10 ชิ้น</td><td style="font-weight:700;font-family:'IBM Plex Mono'">฿33.25</td><td><span class="badge badge-red">ไม่ใช้งาน</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">102</td><td style="font-weight:600">NIKE รองเท้า</td><td><span class="badge badge-gray">กีฬา</span></td><td>—</td><td>1 คู่</td><td style="font-weight:700;font-family:'IBM Plex Mono';color:var(--danger)">฿25,000.00</td><td><span class="badge badge-amber">ตรวจสอบ</span></td><td><button class="btn btn-outline btn-sm">✏️</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" style="padding:14px 16px">
+            <span>แสดง 1–25 จาก 79 รายการ</span>
+            <div class="page-btns">
+              <div class="page-btn">‹</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">4</div>
+              <div class="page-btn">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 4: PRODUCT FORM                            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="product-form" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">คลังสินค้า</div><button class="nav-item active"><span class="nav-icon">📦</span> สินค้า</button><button class="nav-item"><span class="nav-icon">🗂</span> หมวดหมู่สินค้า</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>สินค้า</span><span class="sep">›</span><span class="cur">เพิ่มสินค้าใหม่</span></div>
+        <div class="topbar-right"><button class="btn btn-outline btn-sm">← กลับ</button></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">เพิ่มสินค้าใหม่</div><div class="page-desc">กรอกข้อมูลสินค้าให้ครบถ้วน (ช่องที่มี * กำหนดต้องกรอก)</div></div>
+        </div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label required">ชื่อสินค้า</label>
+              <input class="form-input" placeholder="เช่น กาแฟอาราบิก้าคั่วเข้ม">
+              <span class="form-hint">ความยาวไม่เกิน 30 ตัวอักษร</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">หมวดหมู่สินค้า</label>
+              <select class="form-select"><option>— เลือกหมวดหมู่ —</option><option>เครื่องดื่ม</option><option>เครื่องปรุงรส</option><option>ขนมหวาน</option><option>ผลิตภัณฑ์นม</option><option>เนื้อสัตว์</option><option>อาหารทะเล</option><option>ธัญพืช/ซีเรียล</option><option>อาหารพิเศษ</option><option>กีฬา</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">ผู้จัดจำหน่าย</label>
+              <select class="form-select"><option>— เลือกผู้จัดจำหน่าย —</option><option>Exotic Liquids</option><option>Tokyo Traders</option><option>Pavlova Ltd</option><option>G'day Mate</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">หน่วยบรรจุภัณฑ์</label>
+              <input class="form-input" placeholder="เช่น 12 กล่อง × 500 มล.">
+            </div>
+            <div class="form-group">
+              <label class="form-label required">ราคาต่อหน่วย (บาท)</label>
+              <input class="form-input" type="number" placeholder="0.00" min="0.01">
+              <span class="form-hint">⚠️ ราคาสูงกว่า ฿10,000 จะถูกตั้งสถานะ "ตรวจสอบ" อัตโนมัติ</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">สถานะสินค้า</label>
+              <select class="form-select"><option>ใช้งานอยู่</option><option>ไม่ใช้งาน</option><option>ตรวจสอบ</option></select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+            <button class="btn btn-outline">ยกเลิก</button>
+            <button class="btn btn-primary">💾 บันทึกสินค้า</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 5: CATEGORIES                              -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="categories" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">คลังสินค้า</div><button class="nav-item"><span class="nav-icon">📦</span> สินค้า</button><button class="nav-item active"><span class="nav-icon">🗂</span> หมวดหมู่สินค้า</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">หมวดหมู่สินค้า</span></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">หมวดหมู่สินค้า</div><div class="page-desc">9 หมวดหมู่</div></div>
+          <button class="btn btn-primary">➕ เพิ่มหมวดหมู่</button>
+        </div>
+        <div class="card-grid-3">
+          <div class="cat-card"><div><div class="cat-icon">🍹</div><div class="cat-name">เครื่องดื่ม</div><div class="cat-desc">Soft drinks, coffees, teas, beers</div><div class="cat-count">12 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🧂</div><div class="cat-name">เครื่องปรุงรส</div><div class="cat-desc">Sweet and savory sauces</div><div class="cat-count">13 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🍬</div><div class="cat-name">ขนมหวาน</div><div class="cat-desc">Desserts, candies, sweet breads</div><div class="cat-count">7 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🧀</div><div class="cat-name">ผลิตภัณฑ์นม</div><div class="cat-desc">Cheeses, butter, cream</div><div class="cat-count">10 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🥩</div><div class="cat-name">เนื้อสัตว์</div><div class="cat-desc">Prepared meats</div><div class="cat-count">6 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🐟</div><div class="cat-name">อาหารทะเล</div><div class="cat-desc">Seaweed and fish</div><div class="cat-count">8 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🌾</div><div class="cat-name">ธัญพืช/ซีเรียล</div><div class="cat-desc">Breads, crackers, pasta</div><div class="cat-count">7 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">🍄</div><div class="cat-name">อาหารพิเศษ</div><div class="cat-desc">Dried fruit, bean curd</div><div class="cat-count">12 รายการสินค้า</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+          <div class="cat-card"><div><div class="cat-icon">👟</div><div class="cat-name">กีฬา</div><div class="cat-desc">Sporting goods</div><div class="cat-count" style="color:var(--warn)">1 รายการ (ผิดปกติ)</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm">✏️</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 6: ORDERS LIST                             -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="orders" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">การขาย</div><button class="nav-item active"><span class="nav-icon">🛒</span> คำสั่งซื้อ</button><button class="nav-item"><span class="nav-icon">👥</span> ลูกค้า</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">คำสั่งซื้อ</span></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">รายการคำสั่งซื้อ</div><div class="page-desc">196 รายการ · เลขที่ #10248 – #10443</div></div>
+          <button class="btn btn-primary">➕ สร้างคำสั่งซื้อใหม่</button>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="🔍 ค้นหาเลขคำสั่งซื้อ / ลูกค้า...">
+          <select class="filter-select"><option>ทุกสถานะ</option><option>กำลังดำเนินการ</option><option>จัดส่งแล้ว</option><option>ยกเลิก</option></select>
+          <input class="filter-input" type="date" style="min-width:140px;font-family:inherit" value="1997-04-01">
+          <input class="filter-input" type="date" style="min-width:140px;font-family:inherit" value="1997-12-02">
+        </div>
+        <div class="card" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>พนักงาน</th><th>วันที่สั่ง</th><th>บริษัทขนส่ง</th><th>รายการ</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10443</td><td>Ernst Handel</td><td>แอนน์ ด็อดส์เวิร์ท</td><td>2 ธ.ค. 2540</td><td>Federal Shipping</td><td style="text-align:center">2</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10442</td><td>Ernst Handel</td><td>แอนดรูว์ ฟูลเลอร์</td><td>1 ธ.ค. 2540</td><td>United Package</td><td style="text-align:center">3</td><td><span class="badge badge-amber">กำลังดำเนินการ</span></td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10441</td><td>Old World Delicatessen</td><td>โรเบิร์ต คิง</td><td>29 พ.ย. 2540</td><td>Speedy Express</td><td style="text-align:center">1</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10440</td><td>Save-a-lot Markets</td><td>แจเน็ต เลฟเวอร์ลิง</td><td>28 พ.ย. 2540</td><td>United Package</td><td style="text-align:center">4</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10439</td><td>Mère Paillarde</td><td>สตีเวน บิวแชน</td><td>28 พ.ย. 2540</td><td>Federal Shipping</td><td style="text-align:center">2</td><td><span class="badge badge-red">ยกเลิก</span></td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono';font-weight:600">#10248</td><td>Vins et alcools</td><td>สตีเวน บิวแชน</td><td>7 เม.ย. 2539</td><td>Federal Shipping</td><td style="text-align:center">3</td><td><span class="badge badge-green">จัดส่งแล้ว</span></td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" style="padding:14px 16px">
+            <span>แสดง 1–25 จาก 196 รายการ</span>
+            <div class="page-btns"><div class="page-btn">‹</div><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div><div class="page-btn">›</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 7: ORDER DETAIL                            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="order-detail" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">การขาย</div><button class="nav-item active"><span class="nav-icon">🛒</span> คำสั่งซื้อ</button><button class="nav-item"><span class="nav-icon">👥</span> ลูกค้า</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>คำสั่งซื้อ</span><span class="sep">›</span><span class="cur">คำสั่งซื้อ #10443</span></div>
+        <div class="topbar-right">
+          <span class="badge badge-green" style="font-size:13px;padding:5px 12px">✅ จัดส่งแล้ว</span>
+          <button class="btn btn-outline btn-sm">🖨 พิมพ์</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="detail-grid">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-title">📋 รายการสินค้าในคำสั่งซื้อ</div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>สินค้า</th><th>จำนวน</th><th>ราคา/หน่วย</th><th>รวม</th></tr></thead>
+                  <tbody>
+                    <tr><td style="font-weight:600">ชาไทย</td><td>12</td><td>฿18.00</td><td style="font-weight:700">฿216.00</td></tr>
+                    <tr><td style="font-weight:600">น้ำซุปชาม</td><td>8</td><td>฿19.00</td><td style="font-weight:700">฿152.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+                <div class="info-row"><span class="info-label">จำนวนรายการ</span><span class="info-val">2 รายการ</span></div>
+                <div class="info-row"><span class="info-label">จำนวนหน่วยรวม</span><span class="info-val">20 หน่วย</span></div>
+                <div class="info-row" style="border:none"><span class="info-label" style="font-weight:700;font-size:15px">ยอดรวม</span><span class="info-val" style="font-size:18px;color:var(--primary)">฿368.00</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="card-title">👥 ข้อมูลลูกค้า</div>
+              <div class="info-row"><span class="info-label">บริษัท</span><span class="info-val">Ernst Handel</span></div>
+              <div class="info-row"><span class="info-label">ผู้ติดต่อ</span><span class="info-val">Roland Mendel</span></div>
+              <div class="info-row"><span class="info-label">เมือง</span><span class="info-val">Graz, ออสเตรีย</span></div>
+              <div class="info-row" style="border:none"><span class="info-label">รหัสไปรษณีย์</span><span class="info-val">8010</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title">🚚 ข้อมูลการจัดส่ง</div>
+              <div class="info-row"><span class="info-label">วันที่สั่ง</span><span class="info-val">2 ธ.ค. 2540</span></div>
+              <div class="info-row"><span class="info-label">บริษัทขนส่ง</span><span class="info-val">Federal Shipping</span></div>
+              <div class="info-row"><span class="info-label">พนักงาน</span><span class="info-val">แอนน์ ด็อดส์เวิร์ท</span></div>
+              <div class="info-row" style="border:none"><span class="info-label">สถานะ</span><span class="info-val"><span class="badge badge-green">จัดส่งแล้ว</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 8: CUSTOMERS                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="customers" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">การขาย</div><button class="nav-item"><span class="nav-icon">🛒</span> คำสั่งซื้อ</button><button class="nav-item active"><span class="nav-icon">👥</span> ลูกค้า</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">ลูกค้า</span></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">ทะเบียนลูกค้า</div><div class="page-desc">91 ราย · 21 ประเทศ</div></div>
+          <button class="btn btn-primary">➕ เพิ่มลูกค้าใหม่</button>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="🔍 ค้นหาบริษัท / ชื่อผู้ติดต่อ...">
+          <select class="filter-select"><option>ทุกประเทศ</option><option>เยอรมนี</option><option>เม็กซิโก</option><option>สหราชอาณาจักร</option><option>ฝรั่งเศส</option><option>บราซิล</option></select>
+        </div>
+        <div class="card" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>รหัส</th><th>บริษัท</th><th>ผู้ติดต่อ</th><th>เมือง</th><th>ประเทศ</th><th>รหัสไปรษณีย์</th><th>จัดการ</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:'IBM Plex Mono'">1</td><td style="font-weight:600">Alfreds Futterkiste</td><td>Maria Anders</td><td>Berlin</td><td>🇩🇪 เยอรมนี</td><td style="font-family:'IBM Plex Mono'">12209</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">2</td><td style="font-weight:600">Ana Trujillo</td><td>Ana Trujillo</td><td>México D.F.</td><td>🇲🇽 เม็กซิโก</td><td style="font-family:'IBM Plex Mono'">05021</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">3</td><td style="font-weight:600">Antonio Moreno</td><td>Antonio Moreno</td><td>México D.F.</td><td>🇲🇽 เม็กซิโก</td><td style="font-family:'IBM Plex Mono'">05023</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">4</td><td style="font-weight:600">Around the Horn</td><td>Thomas Hardy</td><td>London</td><td>🇬🇧 สหราชอาณาจักร</td><td style="font-family:'IBM Plex Mono'">WA1 1DP</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">5</td><td style="font-weight:600">Berglunds snabbköp</td><td>Christina Berglund</td><td>Luleå</td><td>🇸🇪 สวีเดน</td><td style="font-family:'IBM Plex Mono'">S-958 22</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">10</td><td style="font-weight:600">Ernst Handel</td><td>Roland Mendel</td><td>Graz</td><td>🇦🇹 ออสเตรีย</td><td style="font-family:'IBM Plex Mono'">8010</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" style="padding:14px 16px"><span>แสดง 1–25 จาก 91 รายการ</span><div class="page-btns"><div class="page-btn">‹</div><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div><div class="page-btn">4</div><div class="page-btn">›</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 9: SUPPLIERS                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="suppliers" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">ห่วงโซ่อุปทาน</div><button class="nav-item active"><span class="nav-icon">🏭</span> ผู้จัดจำหน่าย</button><button class="nav-item"><span class="nav-icon">🚚</span> บริษัทขนส่ง</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">ผู้จัดจำหน่าย</span></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">ทะเบียนผู้จัดจำหน่าย</div><div class="page-desc">29 ราย</div></div>
+          <button class="btn btn-primary">➕ เพิ่มผู้จัดจำหน่าย</button>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="🔍 ค้นหาชื่อบริษัท / ผู้ติดต่อ...">
+        </div>
+        <div class="card" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>รหัส</th><th>บริษัท</th><th>ผู้ติดต่อ</th><th>เมือง</th><th>ประเทศ</th><th>เบอร์โทร</th><th>สินค้า</th><th>จัดการ</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:'IBM Plex Mono'">1</td><td style="font-weight:600">Exotic Liquids</td><td>Charlotte Cooper</td><td>London</td><td>🇬🇧 UK</td><td style="font-family:'IBM Plex Mono'">(171) 555-2222</td><td>3</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">2</td><td style="font-weight:600">New Orleans</td><td>Shelley Burke</td><td>New Orleans</td><td>🇺🇸 USA</td><td style="font-family:'IBM Plex Mono'">(100) 555-4822</td><td>4</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">3</td><td style="font-weight:600">Grandma Kelly's</td><td>Regina Murphy</td><td>Ann Arbor</td><td>🇺🇸 USA</td><td style="font-family:'IBM Plex Mono'">(313) 555-5735</td><td>3</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">4</td><td style="font-weight:600">Tokyo Traders</td><td>Yoshi Nagase</td><td>Tokyo</td><td>🇯🇵 Japan</td><td style="font-family:'IBM Plex Mono'">(03) 3555-5011</td><td>3</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono'">5</td><td style="font-weight:600">Cooperativa</td><td>Antonio Taquería</td><td>Oviedo</td><td>🇪🇸 Spain</td><td style="font-family:'IBM Plex Mono'">(98) 598 76 54</td><td>4</td><td><button class="btn btn-outline btn-sm">👁</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 10: EMPLOYEES                              -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="employees" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">บุคลากร</div><button class="nav-item active"><span class="nav-icon">👤</span> พนักงาน</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">พนักงาน</span></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">รายชื่อพนักงาน</div><div class="page-desc">10 คน</div></div>
+          <button class="btn btn-primary">➕ เพิ่มพนักงาน</button>
+        </div>
+        <div class="emp-grid">
+          <div class="emp-card"><div class="emp-avatar">ND</div><div class="emp-name">Nancy Davolio</div><div class="emp-title">พนักงานขาย</div><div class="emp-meta">เกิด: 8 ธ.ค. 2491</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#7C3AED">AF</div><div class="emp-name">Andrew Fuller</div><div class="emp-title">ผู้จัดการฝ่ายขาย</div><div class="emp-meta">เกิด: 19 ก.พ. 2495</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#059669">JL</div><div class="emp-name">Janet Leverling</div><div class="emp-title">พนักงานขาย</div><div class="emp-meta">เกิด: 30 ส.ค. 2506</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#D97706">MP</div><div class="emp-name">Margaret Peacock</div><div class="emp-title">พนักงานขาย</div><div class="emp-meta">เกิด: 19 ก.ย. 2480</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#DC2626">SB</div><div class="emp-name">Steven Buchanan</div><div class="emp-title">ผู้จัดการฝ่ายขาย</div><div class="emp-meta">เกิด: 4 มี.ค. 2498</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#0891B2">MS</div><div class="emp-name">Michael Suyama</div><div class="emp-title">พนักงานขาย</div><div class="emp-meta">เกิด: 2 ก.ค. 2503</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#65A30D">RK</div><div class="emp-name">Robert King</div><div class="emp-title">พนักงานขาย</div><div class="emp-meta">เกิด: 29 พ.ค. 2503</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#C026D3">LC</div><div class="emp-name">Laura Callahan</div><div class="emp-title">ผู้ช่วยฝ่ายขาย</div><div class="emp-meta">เกิด: 9 ม.ค. 2501</div></div>
+          <div class="emp-card"><div class="emp-avatar" style="background:#9333EA">AD</div><div class="emp-name">Anne Dodsworth</div><div class="emp-title">พนักงานขาย</div><div class="emp-meta">เกิด: 27 ม.ค. 2509</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 11: SHIPPERS                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="shippers" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">ห่วงโซ่อุปทาน</div><button class="nav-item"><span class="nav-icon">🏭</span> ผู้จัดจำหน่าย</button><button class="nav-item active"><span class="nav-icon">🚚</span> บริษัทขนส่ง</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">บริษัทขนส่ง</span></div>
+      </div>
+      <div class="page-content">
+        <div class="page-header">
+          <div><div class="page-title">บริษัทขนส่ง</div><div class="page-desc">3 บริษัท</div></div>
+          <button class="btn btn-primary">➕ เพิ่มบริษัทขนส่ง</button>
+        </div>
+        <div class="card-grid-3">
+          <div class="shipper-card">
+            <div style="font-size:32px;margin-bottom:12px">🚀</div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink)">Speedy Express</div>
+            <div style="font-size:13px;color:var(--ink-2);margin-top:4px">(503) 555-9831</div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--ink-3)">จัดส่งแล้ว 54 ครั้ง</span>
+              <span class="badge badge-green">พร้อมให้บริการ</span>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" style="flex:1">✏️ แก้ไข</button>
+            </div>
+          </div>
+          <div class="shipper-card">
+            <div style="font-size:32px;margin-bottom:12px">📦</div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink)">United Package</div>
+            <div style="font-size:13px;color:var(--ink-2);margin-top:4px">(503) 555-3199</div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--ink-3)">จัดส่งแล้ว 74 ครั้ง</span>
+              <span class="badge badge-green">พร้อมให้บริการ</span>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" style="flex:1">✏️ แก้ไข</button>
+            </div>
+          </div>
+          <div class="shipper-card">
+            <div style="font-size:32px;margin-bottom:12px">🛳</div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink)">Federal Shipping</div>
+            <div style="font-size:13px;color:var(--ink-2);margin-top:4px">(503) 555-9931</div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--ink-3)">จัดส่งแล้ว 68 ครั้ง</span>
+              <span class="badge badge-green">พร้อมให้บริการ</span>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" style="flex:1">✏️ แก้ไข</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 12: REPORTS / ANALYTICS                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="reports" class="screen">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="sidebar-logo"><div class="logo-mark">NW</div><div><div class="logo-text">Northwind BMS</div><div class="logo-sub">ระบบจัดการธุรกิจ</div></div></div>
+      <div class="nav"><div class="nav-group"><div class="nav-label">วิเคราะห์</div><button class="nav-item active"><span class="nav-icon">📈</span> รายงาน</button></div></div>
+      <div class="sidebar-footer"><div class="user-card"><div class="avatar">วช</div><div><div class="user-name">วชิรา ล.</div><div class="user-role">ผู้ดูแลระบบ</div></div></div></div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>หน้าหลัก</span><span class="sep">›</span><span class="cur">รายงานและวิเคราะห์</span></div>
+        <div class="topbar-right">
+          <select class="filter-select" style="font-size:12px">
+            <option>ปี 2540</option><option>ปี 2539</option><option>ทุกปี</option>
+          </select>
+          <button class="btn btn-outline btn-sm">📥 ส่งออก Excel</button>
+          <button class="btn btn-outline btn-sm">📄 ส่งออก PDF</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="page-title" style="margin-bottom:16px">รายงานและวิเคราะห์ข้อมูล</div>
+        <div class="tab-list">
+          <button class="tab-item active">📊 ภาพรวมการขาย</button>
+          <button class="tab-item">📦 ตามสินค้า</button>
+          <button class="tab-item">👥 ตามลูกค้า</button>
+          <button class="tab-item">👤 ตามพนักงาน</button>
+        </div>
+        <!-- KPIs -->
+        <div class="kpi-grid" style="margin-bottom:16px">
+          <div class="kpi-card"><div><div class="kpi-label">รายได้รวม (ประมาณ)</div><div class="kpi-value" style="font-size:22px">฿2.45M</div><div class="kpi-trend up">▲ 8.4%</div></div><div class="kpi-icon" style="background:#DCFCE7">💰</div></div>
+          <div class="kpi-card"><div><div class="kpi-label">คำสั่งซื้อทั้งหมด</div><div class="kpi-value">196</div><div class="kpi-trend up">▲ 12%</div></div><div class="kpi-icon" style="background:#DBEAFE">📋</div></div>
+          <div class="kpi-card"><div><div class="kpi-label">ค่าเฉลี่ยต่อออร์เดอร์</div><div class="kpi-value" style="font-size:22px">฿1,250</div></div><div class="kpi-icon" style="background:#FEF3C7">📉</div></div>
+          <div class="kpi-card"><div><div class="kpi-label">บริษัทขนส่งยอดนิยม</div><div class="kpi-value" style="font-size:15px;margin-top:6px">United Package</div><div class="kpi-trend" style="color:var(--ink-3)">74 ครั้ง</div></div><div class="kpi-icon" style="background:#F3E8FF">🚚</div></div>
+        </div>
+        <div class="card-grid-2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-title">📈 แนวโน้มยอดขายรายเดือน</div>
+            <div class="bar-chart" style="height:100px">
+              <div class="bar-wrap"><div class="bar-col" style="height:30px;background:#93C5FD"></div><div class="bar-lbl">เม.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:45px;background:#93C5FD"></div><div class="bar-lbl">พ.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:55px;background:#93C5FD"></div><div class="bar-lbl">มิ.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:70px"></div><div class="bar-lbl">ก.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:65px"></div><div class="bar-lbl">ส.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:80px"></div><div class="bar-lbl">ก.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:90px"></div><div class="bar-lbl">ต.ค</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:100px;background:#1D4ED8"></div><div class="bar-lbl">พ.ย</div></div>
+              <div class="bar-wrap"><div class="bar-col" style="height:85px"></div><div class="bar-lbl">ธ.ค</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">🏆 สินค้าขายดีสูงสุด</div>
+            <div class="prog-row"><div class="prog-label"><span>ชาไทย</span><span style="font-weight:700;font-family:'IBM Plex Mono'">324 หน่วย</span></div><div class="prog-bar"><div class="prog-fill" style="width:90%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>น้ำซุปชาม</span><span style="font-weight:700;font-family:'IBM Plex Mono'">290 หน่วย</span></div><div class="prog-bar"><div class="prog-fill" style="width:80%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>แมนจิมัป</span><span style="font-weight:700;font-family:'IBM Plex Mono'">218 หน่วย</span></div><div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>ลูกอมผลไม้</span><span style="font-weight:700;font-family:'IBM Plex Mono'">198 หน่วย</span></div><div class="prog-bar"><div class="prog-fill" style="width:54%"></div></div></div>
+            <div class="prog-row"><div class="prog-label"><span>แซนด์วิชฟิงเกอร์</span><span style="font-weight:700;font-family:'IBM Plex Mono'">156 หน่วย</span></div><div class="prog-bar"><div class="prog-fill" style="width:43%"></div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🥇 ลูกค้าที่ซื้อสูงสุด (Top 5)</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>อันดับ</th><th>บริษัท</th><th>ประเทศ</th><th>จำนวนออร์เดอร์</th><th>สัดส่วน</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:700;color:var(--warn)">🥇</td><td style="font-weight:600">Ernst Handel</td><td>🇦🇹 ออสเตรีย</td><td>10</td><td><div class="prog-bar" style="width:100px"><div class="prog-fill" style="width:90%"></div></div></td></tr>
+                <tr><td style="font-weight:700;color:var(--ink-2)">🥈</td><td style="font-weight:600">Save-a-lot Markets</td><td>🇺🇸 สหรัฐอเมริกา</td><td>9</td><td><div class="prog-bar" style="width:100px"><div class="prog-fill" style="width:81%"></div></div></td></tr>
+                <tr><td style="font-weight:700;color:var(--warn)">🥉</td><td style="font-weight:600">QUICK-Stop</td><td>🇩🇪 เยอรมนี</td><td>8</td><td><div class="prog-bar" style="width:100px"><div class="prog-fill" style="width:72%"></div></div></td></tr>
+                <tr><td>4</td><td style="font-weight:600">Rattlesnake Canyon</td><td>🇺🇸 สหรัฐอเมริกา</td><td>7</td><td><div class="prog-bar" style="width:100px"><div class="prog-fill" style="width:63%"></div></div></td></tr>
+                <tr><td>5</td><td style="font-weight:600">Hungry Owl</td><td>🇮🇪 ไอร์แลนด์</td><td>6</td><td><div class="prog-bar" style="width:100px"><div class="prog-fill" style="width:54%"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  const clickedBtn = [...document.querySelectorAll('.nav-tab')]
+    .find(b => b.getAttribute('onclick') === `show('${id}')`);
+  if (clickedBtn) clickedBtn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body></html>

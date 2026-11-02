@@ -1,0 +1,479 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Northwind BMS RESTful API",
+    "description": "ระบบจัดการข้อมูลธุรกิจ Northwind BMS (Business Management System) ตามสถาปัตยกรรม RESTful API ด้วย PHP OOP & PDO Prepared Statements",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Northwind Engineering Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "../",
+      "description": "Current Server (Relative API Path)"
+    },
+    {
+      "url": "http://localhost/projectII/api",
+      "description": "Local MAMP Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "กรอก JWT Token ที่ได้รับจาก /auth/login"
+      }
+    },
+    "schemas": {
+      "StandardResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "ดำเนินการสำเร็จ" },
+          "data": { "type": "object" },
+          "meta": { "type": "object" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "message": { "type": "string", "example": "ข้อความแจ้งเตือนข้อผิดพลาด" },
+          "errors": { "type": "object" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": { "type": "string", "example": "admin" },
+          "password": { "type": "string", "example": "admin123" }
+        }
+      },
+      "ProductInput": {
+        "type": "object",
+        "required": ["c_ProductName", "i_SupplierID", "i_CategoryID", "c_Unit", "i_Price"],
+        "properties": {
+          "c_ProductName": { "type": "string", "example": "ชาไทยพรีเมียม" },
+          "i_SupplierID": { "type": "integer", "example": 1 },
+          "i_CategoryID": { "type": "integer", "example": 1 },
+          "c_Unit": { "type": "string", "example": "24 ขวด / ลัง" },
+          "i_Price": { "type": "number", "format": "float", "example": 35.50 }
+        }
+      },
+      "CategoryInput": {
+        "type": "object",
+        "required": ["c_CategoryName", "c_Description"],
+        "properties": {
+          "c_CategoryName": { "type": "string", "example": "เครื่องดื่มและชา" },
+          "c_Description": { "type": "string", "example": "ชา กาแฟ และน้ำผลไม้พร้อมดื่ม" }
+        }
+      },
+      "OrderInput": {
+        "type": "object",
+        "required": ["i_CustomerID", "i_EmployeeID", "i_ShipperID", "c_OrderDate"],
+        "properties": {
+          "i_CustomerID": { "type": "integer", "example": 1 },
+          "i_EmployeeID": { "type": "integer", "example": 1 },
+          "i_ShipperID": { "type": "integer", "example": 2 },
+          "c_OrderDate": { "type": "string", "example": "2026-11-02" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "i_ProductID": { "type": "integer", "example": 1 },
+                "i_Quantity": { "type": "integer", "example": 10 }
+              }
+            }
+          }
+        }
+      },
+      "CustomerInput": {
+        "type": "object",
+        "required": ["c_customername", "c_contactname", "c_country"],
+        "properties": {
+          "c_customername": { "type": "string", "example": "สยามเทรดดิ้ง กรุ๊ป" },
+          "c_contactname": { "type": "string", "example": "สมชาย ใจดี" },
+          "c_address": { "type": "string", "example": "99/1 ถนนสุขุมวิท" },
+          "c_city": { "type": "string", "example": "กรุงเทพมหานคร" },
+          "c_postalcode": { "type": "string", "example": "10110" },
+          "c_country": { "type": "string", "example": "Thailand" }
+        }
+      },
+      "SupplierInput": {
+        "type": "object",
+        "required": ["c_SupplierName", "c_ContactName", "c_Country", "c_Phone"],
+        "properties": {
+          "c_SupplierName": { "type": "string", "example": "สยามฟู้ดส์ โปรดักส์" },
+          "c_ContactName": { "type": "string", "example": "วิชัย มั่นคง" },
+          "c_Address": { "type": "string", "example": "123 นิคมอุตสาหกรรม" },
+          "c_City": { "type": "string", "example": "ชลบุรี" },
+          "c_PostalCode": { "type": "string", "example": "20000" },
+          "c_Country": { "type": "string", "example": "Thailand" },
+          "c_Phone": { "type": "string", "example": "038-123456" }
+        }
+      },
+      "EmployeeInput": {
+        "type": "object",
+        "required": ["c_FirstName", "c_LastName", "c_BirthDate"],
+        "properties": {
+          "c_FirstName": { "type": "string", "example": "ธีรเดช" },
+          "c_LastName": { "type": "string", "example": "วงศ์สว่าง" },
+          "c_BirthDate": { "type": "string", "example": "1990-05-15" },
+          "c_Photo": { "type": "string", "example": "EmpID1.pic" },
+          "c_Notes": { "type": "string", "example": "เจ้าหน้าที่ฝ่ายประสานงานขาย" }
+        }
+      },
+      "ShipperInput": {
+        "type": "object",
+        "required": ["c_ShipperName", "c_Phone"],
+        "properties": {
+          "c_ShipperName": { "type": "string", "example": "Flash Express Logistics" },
+          "c_Phone": { "type": "string", "example": "02-123-4567" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "เข้าสู่ระบบและขอรับ JWT Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "เข้าสู่ระบบสำเร็จ", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StandardResponse" } } } },
+          "401": { "description": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "ดูข้อมูลผู้ใช้ปัจจุบันที่ล็อกอินอยู่",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "สำเร็จ" },
+          "401": { "description": "Token ไม่ถูกต้องหรือหมดอายุ" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "ออกจากระบบ",
+        "responses": {
+          "200": { "description": "ออกจากระบบสำเร็จ" }
+        }
+      }
+    },
+    "/dashboard/kpis": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "ดึงข้อมูลสถิติภาพรวม (KPI Cards)",
+        "responses": {
+          "200": { "description": "สำเร็จ" }
+        }
+      }
+    },
+    "/dashboard/charts": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "ดึงข้อมูลสำหรับสร้างกราฟ (ยอดขายรายเดือน, Top 5 สินค้า, ยอดขายตามหมวดหมู่)",
+        "responses": {
+          "200": { "description": "สำเร็จ" }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "ดึงรายการสินค้า (ค้นหา, กรองหมวดหมู่/ซัพพลายเออร์, แบ่งหน้า)",
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "ค้นหาตามชื่อสินค้า" },
+          { "name": "category_id", "in": "query", "schema": { "type": "integer" }, "description": "รหัสหมวดหมู่" },
+          { "name": "supplier_id", "in": "query", "schema": { "type": "integer" }, "description": "รหัสผู้จัดจำหน่าย" },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": { "description": "สำเร็จ" }
+        }
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "เพิ่มสินค้าใหม่",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProductInput" } } }
+        },
+        "responses": {
+          "200": { "description": "สร้างสินค้าสำเร็จ" },
+          "422": { "description": "ข้อมูลไม่ถูกต้อง (Form Validation Error)" }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "ดูรายละเอียดสินค้าตามรหัส ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "สำเร็จ" },
+          "404": { "description": "ไม่พบสินค้า" }
+        }
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "แก้ไขข้อมูลสินค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProductInput" } } }
+        },
+        "responses": {
+          "200": { "description": "แก้ไขสำเร็จ" },
+          "404": { "description": "ไม่พบสินค้า" }
+        }
+      },
+      "delete": {
+        "tags": ["Products"],
+        "summary": "ลบสินค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "ลบสำเร็จ" },
+          "409": { "description": "ไม่สามารถลบได้เนื่องจากมีคำสั่งซื้ออ้างอิงอยู่" }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "ดึงรายการหมวดหมู่สินค้าทั้งหมดพร้อมจำนวนสินค้า",
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "post": {
+        "tags": ["Categories"],
+        "summary": "เพิ่มหมวดหมู่สินค้าใหม่",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CategoryInput" } } }
+        },
+        "responses": { "200": { "description": "สร้างสำเร็จ" } }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "ดูรายละเอียดหมวดหมู่สินค้า",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "สำเร็จ" }, "404": { "description": "ไม่พบหมวดหมู่" } }
+      },
+      "put": {
+        "tags": ["Categories"],
+        "summary": "แก้ไขหมวดหมู่สินค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CategoryInput" } } } },
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "delete": {
+        "tags": ["Categories"],
+        "summary": "ลบหมวดหมู่สินค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "ลบสำเร็จ" }, "409": { "description": "มีสินค้าอยู่ในหมวดหมู่นี้ ไม่สามารถลบได้" } }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "ดึงรายการคำสั่งซื้อ (กรองตามขนส่ง, ลูกค้า, ค้นหา)",
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "shipper_id", "in": "query", "schema": { "type": "integer" } },
+          { "name": "customer_id", "in": "query", "schema": { "type": "integer" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "post": {
+        "tags": ["Orders"],
+        "summary": "สร้างคำสั่งซื้อใหม่พร้อมรายการสินค้า (Database Transaction)",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderInput" } } } },
+        "responses": { "200": { "description": "สร้างสำเร็จ" } }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "ดูรายละเอียดคำสั่งซื้อและรายการสินค้าทั้งหมด (Order Items)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "สำเร็จ" }, "404": { "description": "ไม่พบคำสั่งซื้อ" } }
+      },
+      "put": {
+        "tags": ["Orders"],
+        "summary": "แก้ไขข้อมูลคำสั่งซื้อ",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderInput" } } } },
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "delete": {
+        "tags": ["Orders"],
+        "summary": "ลบคำสั่งซื้อและรายการสินค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "ลบสำเร็จ" } }
+      }
+    },
+    "/orders/{id}/items": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "เพิ่มสินค้าเข้าไปในคำสั่งซื้อเดิม",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["i_ProductID", "i_Quantity"],
+                "properties": {
+                  "i_ProductID": { "type": "integer", "example": 2 },
+                  "i_Quantity": { "type": "integer", "example": 5 }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "เพิ่มสินค้าสำเร็จ" } }
+      }
+    },
+    "/orders/{id}/items/{detailId}": {
+      "delete": {
+        "tags": ["Orders"],
+        "summary": "ลบรายการสินค้าออกจากคำสั่งซื้อ",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "detailId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "ลบรายการสำเร็จ" } }
+      }
+    },
+    "/customers": {
+      "get": {
+        "tags": ["Customers"],
+        "summary": "ดึงรายการลูกค้า (ค้นหา, แบ่งหน้า)",
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "post": {
+        "tags": ["Customers"],
+        "summary": "เพิ่มลูกค้าใหม่",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CustomerInput" } } } },
+        "responses": { "200": { "description": "สร้างสำเร็จ" } }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "tags": ["Customers"],
+        "summary": "ดูรายละเอียดลูกค้าและประวัติการสั่งซื้อ",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "put": {
+        "tags": ["Customers"],
+        "summary": "แก้ไขข้อมูลลูกค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CustomerInput" } } } },
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "delete": {
+        "tags": ["Customers"],
+        "summary": "ลบข้อมูลลูกค้า",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "ลบสำเร็จ" } }
+      }
+    },
+    "/suppliers": {
+      "get": {
+        "tags": ["Suppliers"],
+        "summary": "ดึงรายการผู้จัดจำหน่าย",
+        "parameters": [{ "name": "search", "in": "query", "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "สำเร็จ" } }
+      },
+      "post": {
+        "tags": ["Suppliers"],
+        "summary": "เพิ่มผู้จัดจำหน่ายใหม่",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SupplierInput" } } } },
+        "responses": { "200": { "description": "สร้างสำเร็จ" } }
+      }
+    },
+    "/suppliers/{id}": {
+      "get": { "tags": ["Suppliers"], "summary": "ดูรายละเอียดผู้จัดจำหน่ายและสินค้าที่จัดส่ง", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "สำเร็จ" } } },
+      "put": { "tags": ["Suppliers"], "summary": "แก้ไขข้อมูลผู้จัดจำหน่าย", "security": [{ "BearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SupplierInput" } } } }, "responses": { "200": { "description": "สำเร็จ" } } },
+      "delete": { "tags": ["Suppliers"], "summary": "ลบผู้จัดจำหน่าย", "security": [{ "BearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "ลบสำเร็จ" } } }
+    },
+    "/employees": {
+      "get": { "tags": ["Employees"], "summary": "ดึงรายการพนักงาน", "parameters": [{ "name": "search", "in": "query", "schema": { "type": "string" } }], "responses": { "200": { "description": "สำเร็จ" } } },
+      "post": { "tags": ["Employees"], "summary": "เพิ่มพนักงานใหม่", "security": [{ "BearerAuth": [] }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EmployeeInput" } } } }, "responses": { "200": { "description": "สร้างสำเร็จ" } } }
+    },
+    "/employees/{id}": {
+      "get": { "tags": ["Employees"], "summary": "ดูรายละเอียดพนักงาน", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "สำเร็จ" } } },
+      "put": { "tags": ["Employees"], "summary": "แก้ไขข้อมูลพนักงาน", "security": [{ "BearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EmployeeInput" } } } }, "responses": { "200": { "description": "สำเร็จ" } } },
+      "delete": { "tags": ["Employees"], "summary": "ลบพนักงาน", "security": [{ "BearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "ลบสำเร็จ" } } }
+    },
+    "/shippers": {
+      "get": { "tags": ["Shippers"], "summary": "ดึงรายการบริษัทขนส่ง", "responses": { "200": { "description": "สำเร็จ" } } },
+      "post": { "tags": ["Shippers"], "summary": "เพิ่มบริษัทขนส่งใหม่", "security": [{ "BearerAuth": [] }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ShipperInput" } } } }, "responses": { "200": { "description": "สร้างสำเร็จ" } } }
+    },
+    "/shippers/{id}": {
+      "get": { "tags": ["Shippers"], "summary": "ดูรายละเอียดบริษัทขนส่ง", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "สำเร็จ" } } },
+      "put": { "tags": ["Shippers"], "summary": "แก้ไขข้อมูลบริษัทขนส่ง", "security": [{ "BearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ShipperInput" } } } }, "responses": { "200": { "description": "สำเร็จ" } } },
+      "delete": { "tags": ["Shippers"], "summary": "ลบบริษัทขนส่ง", "security": [{ "BearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "ลบสำเร็จ" } } }
+    },
+    "/reports/sales": {
+      "get": { "tags": ["Reports"], "summary": "ดึงสรุปรายงานยอดขายแยกตามหมวดหมู่, บริษัทขนส่ง และพนักงาน", "responses": { "200": { "description": "สำเร็จ" } } }
+    },
+    "/reports/export": {
+      "get": {
+        "tags": ["Reports"],
+        "summary": "ส่งออกข้อมูลรายงานเป็นไฟล์ CSV (รองรับ Excel ภาษาไทย)",
+        "parameters": [
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["products", "orders", "categories"], "default": "products" }, "description": "ประเภทข้อมูลที่ต้องการส่งออก" },
+          { "name": "token", "in": "query", "schema": { "type": "string" }, "description": "JWT Token สำหรับการดาวน์โหลดผ่าน Browser Link" }
+        ],
+        "responses": {
+          "200": { "description": "ไฟล์ CSV พร้อมดาวน์โหลด", "content": { "text/csv": {} } }
+        }
+      }
+    }
+  }
+}
