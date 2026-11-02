@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: northwind-bms
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: Dockerfile
