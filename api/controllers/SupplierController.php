@@ -21,8 +21,13 @@ class SupplierController extends BaseController
         $params = [];
 
         if ($search !== '') {
-            $whereConditions[] = "(c_SupplierName LIKE :search OR c_ContactName LIKE :search OR c_Country LIKE :search OR c_City LIKE :search)";
-            $params[':search'] = "%{$search}%";
+            // Each occurrence needs its own name for PDO native prepares.
+            $whereConditions[] = "(c_SupplierName LIKE :search_name OR c_ContactName LIKE :search_contact OR c_Country LIKE :search_country OR c_City LIKE :search_city)";
+            $searchTerm = "%{$search}%";
+            $params[':search_name'] = $searchTerm;
+            $params[':search_contact'] = $searchTerm;
+            $params[':search_country'] = $searchTerm;
+            $params[':search_city'] = $searchTerm;
         }
 
         $whereSql = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';

@@ -3,6 +3,7 @@ DirectoryIndex index.html index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
     
     # If the request is for api/, route to api/index.php
     RewriteRule ^api/(.*)$ api/index.php?__route=/$1 [QSA,L]

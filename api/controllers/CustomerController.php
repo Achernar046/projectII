@@ -21,8 +21,14 @@ class CustomerController extends BaseController
         $params = [];
 
         if ($search !== '') {
-            $whereConditions[] = "(c_customername LIKE :search OR c_contactname LIKE :search OR c_city LIKE :search OR c_country LIKE :search)";
-            $params[':search'] = "%{$search}%";
+            // Use a distinct placeholder for each occurrence. PDO drivers using
+            // native prepares do not allow one named placeholder to be reused.
+            $whereConditions[] = "(c_customername LIKE :search_name OR c_contactname LIKE :search_contact OR c_city LIKE :search_city OR c_country LIKE :search_country)";
+            $searchTerm = "%{$search}%";
+            $params[':search_name'] = $searchTerm;
+            $params[':search_contact'] = $searchTerm;
+            $params[':search_city'] = $searchTerm;
+            $params[':search_country'] = $searchTerm;
         }
 
         $whereSql = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';

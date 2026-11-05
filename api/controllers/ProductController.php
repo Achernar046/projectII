@@ -28,8 +28,10 @@ class ProductController extends BaseController
         $params = [];
 
         if ($search !== '') {
-            $whereConditions[] = "(p.c_ProductName LIKE :search OR p.c_Unit LIKE :search OR p.i_ProductID = :search_id)";
-            $params[':search'] = "%{$search}%";
+            $whereConditions[] = "(p.c_ProductName LIKE :search_name OR p.c_Unit LIKE :search_unit OR p.i_ProductID = :search_id)";
+            $searchTerm = "%{$search}%";
+            $params[':search_name'] = $searchTerm;
+            $params[':search_unit'] = $searchTerm;
             $params[':search_id'] = is_numeric($search) ? (int)$search : 0;
         }
 

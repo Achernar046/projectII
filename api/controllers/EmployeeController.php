@@ -14,15 +14,20 @@ class EmployeeController extends BaseController
      */
     public function index(): void
     {
-        [$page, $limit, $offset] = $this->getPaginationParams(10);
+        // The employees screen has no pagination controls, so include the
+        // complete practical list in one response and show recently added staff first.
+        [$page, $limit, $offset] = $this->getPaginationParams(100);
         $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
         $whereConditions = [];
         $params = [];
 
         if ($search !== '') {
-            $whereConditions[] = "(e.c_FirstName LIKE :search OR e.c_LastName LIKE :search OR e.c_Notes LIKE :search)";
-            $params[':search'] = "%{$search}%";
+            $whereConditions[] = "(e.c_FirstName LIKE :search_first OR e.c_LastName LIKE :search_last OR e.c_Notes LIKE :search_notes)";
+            $searchTerm = "%{$search}%";
+            $params[':search_first'] = $searchTerm;
+            $params[':search_last'] = $searchTerm;
+            $params[':search_notes'] = $searchTerm;
         }
 
         $whereSql = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
@@ -41,7 +46,7 @@ class EmployeeController extends BaseController
                 LEFT JOIN tb_orders o ON e.i_EmployeeID = o.i_EmployeeID
                 {$whereSql}
                 GROUP BY e.i_EmployeeID, e.c_LastName, e.c_FirstName, e.c_BirthDate, e.c_Photo, e.c_Notes
-                ORDER BY e.i_EmployeeID ASC
+                ORDER BY e.i_EmployeeID DESC
                 LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare($sql);
@@ -70,11 +75,10 @@ class EmployeeController extends BaseController
     public function show($id): void
     {
         $id = (int)$id;
-        $sql = "SELECT e.*, COUNT(o.i_OrderID) AS processed_orders
+        $sql = "SELECT e.*,
+                       (SELECT COUNT(*) FROM tb_orders o WHERE o.i_EmployeeID = e.i_EmployeeID) AS processed_orders
                 FROM tb_employees e
-                LEFT JOIN tb_orders o ON e.i_EmployeeID = o.i_EmployeeID
                 WHERE e.i_EmployeeID = :id
-                GROUP BY e.i_EmployeeID
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);

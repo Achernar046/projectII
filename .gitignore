@@ -4,3 +4,8 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Hosting credentials and secrets (copy the *.local.example.php templates)
+api/config/database.local.php
+api/config/jwt.local.php
+northwind-bms-infinityfree.zip
