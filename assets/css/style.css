@@ -350,6 +350,15 @@ body {
 .form-control:focus, .form-select:focus { color: #fff; background-color: #20211f; border-color: #c7ff55; box-shadow: 0 0 0 .2rem rgba(199,255,85,.14); }
 .form-control::placeholder { color: #777970; }
 .form-label { color: #d8d9d3; }
+.modal-content {
+  color: #f1f0eb;
+  background-color: #191a18;
+  border: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+}
+.modal-header, .modal-footer { border-color: rgba(255, 255, 255, .1); }
+.modal-title { color: #f1f0eb; }
+.modal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
 .badge-soft-primary { background: rgba(199,255,85,.14); color: #d8ff96; }
 .badge-soft-success { background: rgba(92,207,137,.14); color: #8ce3ad; }
 .badge-soft-warning { background: rgba(255,195,90,.14); color: #ffd58b; }
