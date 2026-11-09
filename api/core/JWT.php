@@ -18,13 +18,14 @@ class JWT
     /**
      * Base64Url decode a string
      */
-    private static function base64UrlDecode(string $data): string
+    private static function base64UrlDecode(string $data): ?string
     {
         $remainder = strlen($data) % 4;
         if ($remainder) {
             $data .= str_repeat('=', 4 - $remainder);
         }
-        return base64_decode(strtr($data, '-_', '+/'));
+        $decoded = base64_decode(strtr($data, '-_', '+/'), true);
+        return $decoded === false ? null : $decoded;
     }
 
     /**
@@ -83,26 +84,40 @@ class JWT
         }
 
         [$encodedHeader, $encodedPayload, $encodedSignature] = $parts;
-
-        // Verify Signature
-        $expectedSignature = hash_hmac('sha256', "{$encodedHeader}.{$encodedPayload}", $config['secret'], true);
-        $providedSignature = self::base64UrlDecode($encodedSignature);
-
-        if (!hash_equals($expectedSignature, $providedSignature)) {
-            return null; // Signature mismatch
-        }
-
-        // Decode Payload
+        $headerJson = self::base64UrlDecode($encodedHeader);
         $payloadJson = self::base64UrlDecode($encodedPayload);
-        $payload = json_decode($payloadJson, true);
-
-        if (!is_array($payload)) {
+        $providedSignature = self::base64UrlDecode($encodedSignature);
+        if ($headerJson === null || $payloadJson === null || $providedSignature === null) {
             return null;
         }
 
-        // Check Expiration
-        if (isset($payload['exp']) && $payload['exp'] < time()) {
+        $header = json_decode($headerJson, true);
+        $payload = json_decode($payloadJson, true);
+        if (!is_array($header) || ($header['alg'] ?? null) !== 'HS256' || ($header['typ'] ?? null) !== 'JWT' || !is_array($payload)) {
+            return null;
+        }
+
+        // Verify signature and required issuer, audience, and time claims.
+        $expectedSignature = hash_hmac('sha256', "{$encodedHeader}.{$encodedPayload}", $config['secret'], true);
+
+        if (strlen($providedSignature) !== 32 || !hash_equals($expectedSignature, $providedSignature)) {
+            return null; // Signature mismatch
+        }
+
+        if (($payload['iss'] ?? null) !== $config['issuer']
+            || ($payload['aud'] ?? null) !== $config['audience']
+            || !isset($payload['iat'], $payload['exp'])
+            || !is_numeric($payload['iat'])
+            || !is_numeric($payload['exp'])) {
+            return null;
+        }
+
+        $now = time();
+        if ((int)$payload['iat'] > $now + 60 || (int)$payload['exp'] <= $now) {
             return null; // Expired
+        }
+        if (isset($payload['nbf']) && (!is_numeric($payload['nbf']) || (int)$payload['nbf'] > $now)) {
+            return null;
         }
 
         return $payload;

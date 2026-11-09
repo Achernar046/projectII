@@ -23,7 +23,7 @@ if (str_starts_with($secret, 'replace-with-')) {
 
 return [
     'secret' => $secret,
-    'expiry' => 86400, // 24 hours in seconds
+    'expiry' => 28800, // 8 hours in seconds
     'issuer' => 'northwind-bms-api',
     'audience' => 'northwind-bms-clients',
 ];

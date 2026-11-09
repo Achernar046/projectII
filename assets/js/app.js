@@ -1228,16 +1228,65 @@ const App = {
     }
   },
 
-  exportReport(type) {
-    const token = API.getToken();
-    const downloadUrl = `${API.baseUrl}/reports/export?type=${type}&token=${encodeURIComponent(token)}`;
-    window.open(downloadUrl, '_blank');
-    this.toast(`กำลังดาวน์โหลดรายงาน ${type} (CSV)...`, 'info');
+  async exportReport(type) {
+    const allowedTypes = ['products', 'orders', 'categories'];
+    if (!allowedTypes.includes(type)) {
+      this.toast('ประเภทรายงานไม่ถูกต้อง', 'danger');
+      return;
+    }
+
+    try {
+      const file = await API.get('/reports/export', { type });
+      const objectUrl = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = `northwind-${type}-report.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      this.toast(`ดาวน์โหลดรายงาน ${type} สำเร็จ`, 'success');
+    } catch (err) {
+      this.toast('ดาวน์โหลดรายงานไม่สำเร็จ: ' + err.message, 'danger');
+    }
   },
 
   // ═══════════════════════════════════════════════════════
   // UTILITY HELPERS
   // ═══════════════════════════════════════════════════════
+  async changePassword(event) {
+    event.preventDefault();
+    const form = document.getElementById('security-password-form');
+    const currentPassword = document.getElementById('security-current-password').value;
+    const newPassword = document.getElementById('security-new-password').value;
+    const confirmPassword = document.getElementById('security-confirm-password').value;
+    const newPasswordBytes = new TextEncoder().encode(newPassword).length;
+
+    if (newPasswordBytes < 12 || newPasswordBytes > 72) {
+      this.toast('รหัสผ่านใหม่ต้องมีความยาว 12 ถึง 72 ไบต์', 'warning');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      this.toast('รหัสผ่านใหม่และคำยืนยันไม่ตรงกัน', 'warning');
+      return;
+    }
+
+    try {
+      await API.put('/auth/password', {
+        current_password: currentPassword,
+        new_password: newPassword
+      });
+      form.reset();
+      API.setToken(null);
+      API.setUser(null);
+      window.location.hash = 'login';
+      this.showScreen('login');
+      this.toast('เปลี่ยนรหัสผ่านสำเร็จ', 'success');
+    } catch (err) {
+      this.toast('เปลี่ยนรหัสผ่านไม่สำเร็จ: ' + err.message, 'danger');
+    }
+  },
+
   renderPagination(containerId, meta, onPageClick) {
     const container = document.getElementById(containerId);
     if (!container || !meta) return;

@@ -44,7 +44,7 @@
             <label class="form-label fw-semibold small">ชื่อผู้ใช้ หรือ อีเมล</label>
             <div class="input-group">
               <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
-              <input type="text" id="login-username" class="form-control" value="admin" placeholder="admin หรือ admin@northwind.co.th" required>
+              <input type="text" id="login-username" class="form-control" placeholder="ชื่อผู้ใช้หรืออีเมล" autocomplete="username" required>
             </div>
           </div>
 
@@ -52,9 +52,8 @@
             <label class="form-label fw-semibold small">รหัสผ่าน</label>
             <div class="input-group">
               <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
-              <input type="password" id="login-password" class="form-control" value="admin123" placeholder="••••••••" required>
+              <input type="password" id="login-password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
             </div>
-            <div class="form-text small mt-1">รหัสผ่านเริ่มต้นสำหรับทดสอบ: <code>admin123</code></div>
           </div>
 
           <button type="submit" id="login-submit-btn" class="btn btn-primary w-100 py-2 fw-semibold">
@@ -108,6 +107,7 @@
         <a href="#reports" class="sidebar-link"><i class="bi bi-graph-up-arrow"></i> <span>รายงานและการวิเคราะห์</span></a>
 
         <div class="nav-section-title">เอกสารระบบ</div>
+        <a href="#security" class="sidebar-link"><i class="bi bi-shield-lock"></i> <span>ความปลอดภัย</span></a>
         <a href="api/docs/index.html" target="_blank" class="sidebar-link text-primary"><i class="bi bi-file-earmark-code"></i> <span>API Documentation</span></a>
       </nav>
 
@@ -717,6 +717,111 @@
                 <tbody id="report-employee-tbody"></tbody>
               </table>
             </div>
+          </div>
+        </div>
+
+        <!-- SECURITY OVERVIEW -->
+        <div id="screen-security" class="screen-view">
+          <div class="mb-4">
+            <h4 class="fw-bold mb-1"><i class="bi bi-shield-lock text-primary me-2"></i>ความปลอดภัย</h4>
+            <p class="text-muted small mb-0">ภาพรวมมาตรการที่มีในระบบและรายการที่ควรตรวจสอบก่อนใช้งานจริง</p>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6 col-xl-4">
+              <div class="card card-bms h-100">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="kpi-icon-box p-3 rounded-3"><i class="bi bi-person-lock fs-5"></i></div>
+                  <div>
+                    <h6 class="fw-bold mb-1">การยืนยันตัวตน API</h6>
+                    <span class="badge badge-soft-success">JWT Bearer Token · 8 ชั่วโมง</span>
+                    <p class="small text-muted mt-2 mb-0">API ข้อมูลธุรกิจทั้งการอ่านและการแก้ไข ต้องมี Bearer token ที่ยังใช้งานได้</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+              <div class="card card-bms h-100">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="kpi-icon-box p-3 rounded-3"><i class="bi bi-database-lock fs-5"></i></div>
+                  <div>
+                    <h6 class="fw-bold mb-1">การป้องกัน SQL Injection</h6>
+                    <span class="badge badge-soft-success">PDO Prepared Statements</span>
+                    <p class="small text-muted mt-2 mb-0">แยกค่าจากผู้ใช้ออกจากคำสั่ง SQL ด้วย prepared statement และ bind parameter</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+              <div class="card card-bms h-100">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="kpi-icon-box p-3 rounded-3"><i class="bi bi-key fs-5"></i></div>
+                  <div>
+                    <h6 class="fw-bold mb-1">การจัดเก็บค่าลับ</h6>
+                    <span class="badge badge-soft-success">แยกจาก Git</span>
+                    <p class="small text-muted mt-2 mb-0">รองรับ JWT_SECRET และไฟล์ config เฉพาะเครื่อง พร้อมป้องกันการเปิดไฟล์ config และ SQL ผ่านเว็บ</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+              <div class="card card-bms h-100">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="kpi-icon-box p-3 rounded-3"><i class="bi bi-speedometer2 fs-5"></i></div>
+                  <div>
+                    <h6 class="fw-bold mb-1">ป้องกันการเดารหัสผ่าน</h6>
+                    <span class="badge badge-soft-success">จำกัดการลองเข้าสู่ระบบ</span>
+                    <p class="small text-muted mt-2 mb-0">จำกัดจำนวนครั้งตาม IP และชื่อผู้ใช้ พร้อมพักการลองชั่วคราวเมื่อเกินกำหนด</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+              <div class="card card-bms h-100">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="kpi-icon-box p-3 rounded-3"><i class="bi bi-globe2 fs-5"></i></div>
+                  <div>
+                    <h6 class="fw-bold mb-1">?????????????????????????????</h6>
+                    <span class="badge badge-soft-success">Same-origin / Allowlist</span>
+                    <p class="small text-muted mt-2 mb-0">??????????????????????????????????????????? ??????????????????????? CORS_ALLOWED_ORIGINS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-bms p-3 mb-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle text-warning me-2"></i>รายการที่ควรตรวจสอบก่อนเปิดใช้งานจริง</h6>
+            <ul class="small mb-0 ps-3">
+              <li class="mb-2">เปลี่ยนรหัสผ่านเริ่มต้นของฐานข้อมูลบัญชีผู้ใช้; รหัสผ่านรูปแบบเดิมจะถูกเปลี่ยนเป็น bcrypt hash และล้างค่าข้อความเดิมเมื่อเข้าสู่ระบบสำเร็จ</li>
+              <li class="mb-2">ตั้ง JWT secret แบบสุ่มและไม่ซ้ำกัน ห้ามนำไฟล์ config จริงหรือ token ไปเผยแพร่</li>
+              <li>ใช้ HTTPS และออกจากระบบเมื่อใช้อุปกรณ์สาธารณะ เพราะ token ของหน้าเว็บถูกเก็บใน browser storage</li>
+            </ul>
+          </div>
+
+          <div class="card card-bms p-3 mb-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-lock me-2 text-primary"></i>เปลี่ยนรหัสผ่าน</h6>
+            <form id="security-password-form" onsubmit="App.changePassword(event)" class="row g-3">
+              <div class="col-md-4">
+                <label for="security-current-password" class="form-label small fw-semibold">รหัสผ่านปัจจุบัน</label>
+                <input type="password" id="security-current-password" class="form-control" autocomplete="current-password" required>
+              </div>
+              <div class="col-md-4">
+                <label for="security-new-password" class="form-label small fw-semibold">รหัสผ่านใหม่ (12–72 ไบต์)</label>
+                <input type="password" id="security-new-password" class="form-control" minlength="12" maxlength="72" autocomplete="new-password" required>
+              </div>
+              <div class="col-md-4">
+                <label for="security-confirm-password" class="form-label small fw-semibold">ยืนยันรหัสผ่านใหม่</label>
+                <input type="password" id="security-confirm-password" class="form-control" minlength="12" maxlength="72" autocomplete="new-password" required>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-shield-check me-1"></i>บันทึกรหัสผ่านใหม่</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="small text-muted">
+            <i class="bi bi-info-circle me-1"></i>หน้านี้เป็นภาพรวมจากการตั้งค่าในโค้ด ไม่ใช่ผลสแกนความปลอดภัยแบบอัตโนมัติ
           </div>
         </div>
 

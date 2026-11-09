@@ -18,6 +18,7 @@
       "description": "Local MAMP Server"
     }
   ],
+  "security": [{ "BearerAuth": [] }],
   "components": {
     "securitySchemes": {
       "BearerAuth": {
@@ -49,8 +50,16 @@
         "type": "object",
         "required": ["username", "password"],
         "properties": {
-          "username": { "type": "string", "example": "admin" },
-          "password": { "type": "string", "example": "admin123" }
+          "username": { "type": "string", "example": "your-username" },
+          "password": { "type": "string", "format": "password" }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": ["current_password", "new_password"],
+        "properties": {
+          "current_password": { "type": "string", "format": "password" },
+          "new_password": { "type": "string", "format": "password", "minLength": 12, "maxLength": 72 }
         }
       },
       "ProductInput": {
@@ -142,6 +151,7 @@
     "/auth/login": {
       "post": {
         "tags": ["Authentication"],
+        "security": [],
         "summary": "เข้าสู่ระบบและขอรับ JWT Token",
         "requestBody": {
           "required": true,
@@ -165,6 +175,19 @@
         "responses": {
           "200": { "description": "สำเร็จ" },
           "401": { "description": "Token ไม่ถูกต้องหรือหมดอายุ" }
+        }
+      }
+    },
+    "/auth/password": {
+      "put": {
+        "tags": ["Authentication"],
+        "summary": "Change the authenticated user's password",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" } } } },
+        "responses": {
+          "200": { "description": "Password changed" },
+          "401": { "description": "Bearer token invalid or expired" },
+          "422": { "description": "Password input is invalid" },
+          "429": { "description": "Too many attempts" }
         }
       }
     },
@@ -467,8 +490,7 @@
         "tags": ["Reports"],
         "summary": "ส่งออกข้อมูลรายงานเป็นไฟล์ CSV (รองรับ Excel ภาษาไทย)",
         "parameters": [
-          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["products", "orders", "categories"], "default": "products" }, "description": "ประเภทข้อมูลที่ต้องการส่งออก" },
-          { "name": "token", "in": "query", "schema": { "type": "string" }, "description": "JWT Token สำหรับการดาวน์โหลดผ่าน Browser Link" }
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["products", "orders", "categories"], "default": "products" }, "description": "ประเภทข้อมูลที่ต้องการส่งออก" }
         ],
         "responses": {
           "200": { "description": "ไฟล์ CSV พร้อมดาวน์โหลด", "content": { "text/csv": {} } }

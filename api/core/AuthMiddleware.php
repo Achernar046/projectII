@@ -8,9 +8,7 @@ class AuthMiddleware
 {
     private static ?array $currentUser = null;
 
-    /**
-     * Get bearer token from request headers or query string
-     */
+    /** Get bearer tokens only from the Authorization header. */
     public static function getBearerToken(): ?string
     {
         $headers = null;
@@ -48,11 +46,6 @@ class AuthMiddleware
             }
         }
 
-        // Fallback to query parameter (useful for exports/downloads)
-        if (!empty($_GET['token'])) {
-            return trim($_GET['token']);
-        }
-
         return null;
     }
 
@@ -72,6 +65,26 @@ class AuthMiddleware
             Response::unauthorized('โทเคนไม่ถูกต้องหรือหมดอายุการใช้งานแล้ว กรุณาเข้าสู่ระบบใหม่');
         }
 
+        if (TokenRevocationStore::isRevoked($token)) {
+            Response::unauthorized('Token นี้ถูกยกเลิกแล้ว กรุณาเข้าสู่ระบบใหม่');
+        }
+
+        $userId = (int)($payload['user_id'] ?? 0);
+        $authVersion = (string)($payload['auth_version'] ?? '');
+        if ($userId <= 0 || $authVersion === '') {
+            Response::unauthorized('Token ไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่');
+        }
+
+        $stmt = Database::getConnection()->prepare('SELECT password_hash FROM tb_users WHERE i_user_id = :user_id LIMIT 1');
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $storedHash = $stmt->fetchColumn();
+        if (!is_string($storedHash) || $storedHash === ''
+            || !hash_equals($authVersion, substr(hash('sha256', $storedHash), 0, 32))) {
+            Response::unauthorized('ข้อมูลเข้าสู่ระบบเปลี่ยนแปลงแล้ว กรุณาเข้าสู่ระบบใหม่');
+        }
+
+        unset($payload['auth_version']);
         self::$currentUser = $payload;
         return $payload;
     }
